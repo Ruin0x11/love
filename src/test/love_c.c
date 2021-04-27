@@ -4,10 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "shaders.h"
+
 #include "../modules/love_c/love_c.h"
 #include "../modules/love_c/c_Object.h"
 #include "../modules/filesystem/c_Filesystem.h"
 #include "../modules/window/c_Window.h"
+#include "../modules/graphics/c_Graphics.h"
 
 #define TRUE (1)
 #define FALSE (0)
@@ -41,6 +44,32 @@ int init() {
   love_filesystem_setFused(filesystem, is_fused);
 
 
+  LoveC_GraphicsRef graphics = love_graphics_getInstance();
+
+#define SET_SHADER(lang)                                                \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_PIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_ARRAYPIXEL, NULL);
+
+#define SET_SHADER_GAMMA(lang)                                                \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_PIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_ARRAYPIXEL, NULL);
+
+  SET_SHADER(GLSL1)
+  SET_SHADER(ESSL1)
+  SET_SHADER(GLSL3)
+  SET_SHADER(ESSL3)
+  SET_SHADER_GAMMA(GLSL1)
+  SET_SHADER_GAMMA(ESSL1)
+  SET_SHADER_GAMMA(GLSL3)
+  SET_SHADER_GAMMA(ESSL3)
 
   LoveC_WindowRef window = love_window_getInstance();
 
@@ -171,7 +200,16 @@ int test_window() {
 
   printf("Window: %x\n", window);
 
-  printf("Window isOpen: %s\n", love_window_isOpen(window));
+  /* printf("Window isOpen: %s\n", love_window_isOpen(window)); */
+
+  return TRUE;
+}
+
+int test_graphics() {
+  LoveC_GraphicsRef graphics = love_graphics_getInstance();
+
+  printf("Graphics: %x\n", graphics);
+
 
   return TRUE;
 }

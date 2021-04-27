@@ -488,6 +488,9 @@ for lang, info in pairs(langs) do
 	end
 end
 
+print(require("inspect")(defaults))
+print(require("inspect")(defaults_gammacorrect))
+
 love.graphics._setDefaultShaderCode(defaults, defaults_gammacorrect)
 
 -- DO NOT REMOVE THE NEXT LINE. It is used to load this file as a C++ string.
