@@ -13,7 +13,7 @@ LOVE_C_EXTERN_C_BEGIN
 struct LoveC_ShaderHandle;
 typedef struct LoveC_ShaderHandle* LoveC_ShaderRef;
 
-typedef enum Language
+typedef enum LoveC_Shader_Language
   {
     LANGUAGE_GLSL1,
     LANGUAGE_ESSL1,
@@ -22,7 +22,7 @@ typedef enum Language
     LANGUAGE_MAX_ENUM
   } LoveC_Shader_Language;
 
-typedef enum StandardShader
+typedef enum LoveC_Shader_StandardShader
   {
     STANDARD_DEFAULT,
     STANDARD_VIDEO,

@@ -358,11 +358,11 @@ int love_window_showMessageBox__MessageBoxData(LoveC_WindowRef ref, const LoveC_
   data.title = std::string(messageBox->title);
   data.message = std::string(messageBox->message);
 
-  char** button = messageBox->buttons;
-  while (button) {
-    std::string button_(*button);
+  int i;
+  char** buttons = messageBox->buttons;
+  for (i = 0; buttons[i]; i++) {
+    std::string button_(buttons[i]);
     data.buttons.emplace_back(button_);
-    button++;
   }
 
   data.enterButtonIndex = messageBox->enterButtonIndex;

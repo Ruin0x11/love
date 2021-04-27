@@ -12,8 +12,8 @@
 #include "../modules/window/c_Window.h"
 #include "../modules/graphics/c_Graphics.h"
 
-#define TRUE (1)
-#define FALSE (0)
+#define LOVE_C_TRUE (1)
+#define LOVE_C_FALSE (0)
 
 int init() {
   char* error = NULL;
@@ -21,7 +21,7 @@ int init() {
   if (!love_c_init(&error)) {
     printf("Error: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
@@ -30,7 +30,7 @@ int init() {
   love_filesystem_getExecutablePath(filesystem, &exepath);
   if (exepath == NULL) {
     printf("No exepath\n");
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   printf("Exepath: %s\n", exepath);
@@ -47,20 +47,20 @@ int init() {
   LoveC_GraphicsRef graphics = love_graphics_getInstance();
 
 #define SET_SHADER(lang)                                                \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_PIXEL, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_VIDEOPIXEL, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, FALSE, STAGE_PIXEL, SHADER_##lang##_ARRAYPIXEL, NULL);
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_PIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_ARRAYPIXEL, NULL);
 
 #define SET_SHADER_GAMMA(lang)                                                \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_PIXEL, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_VIDEOPIXEL, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_ARRAYPIXEL, NULL);
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_PIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics__setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_ARRAYPIXEL, NULL);
 
   SET_SHADER(GLSL1)
   SET_SHADER(ESSL1)
@@ -77,31 +77,31 @@ int init() {
   love_window_setTitle(window, "Love C");
 
   LoveC_Window_WindowSettings settings;
-  settings.fullscreen = FALSE;
+  settings.fullscreen = LOVE_C_FALSE;
   settings.fstype = FULLSCREEN_MAX_ENUM;
   settings.vsync = 1;
   settings.msaa = 0;
-  settings.stencil = TRUE;
+  settings.stencil = LOVE_C_TRUE;
   settings.depth = 0;
-  settings.resizable = FALSE;
+  settings.resizable = LOVE_C_FALSE;
   settings.minwidth = 1;
   settings.minheight = 1;
-  settings.borderless = FALSE;
-  settings.centered = TRUE;
+  settings.borderless = LOVE_C_FALSE;
+  settings.centered = LOVE_C_TRUE;
   settings.display = 0;
-  settings.highdpi = FALSE;
-  settings.usedpiscale = TRUE;
+  settings.highdpi = LOVE_C_FALSE;
+  settings.usedpiscale = LOVE_C_TRUE;
   settings.refreshrate = 0.0;
-  settings.useposition = FALSE;
+  settings.useposition = LOVE_C_FALSE;
   settings.x = 0;
   settings.y = 0;
 
   if (!love_window_setMode(window, 800, 600, &settings, &error)) {
     printf("Error initializing window: %s\n", error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
-  return TRUE;
+  return LOVE_C_TRUE;
 }
 
 int test_filesystem(char* argv0) {
@@ -113,7 +113,7 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_init(filesystem, argv0, &error)) {
     printf("Error love_filesystem_init: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   const char* str = NULL;
@@ -123,7 +123,7 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_setIdentity(filesystem, "love_c", 1, &error)) {
     printf("Error love_filesystem_setIdentity: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   love_filesystem_getIdentity(filesystem, &str);
@@ -135,7 +135,7 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_newFileData__string(filesystem, "asdfg", "test.txt", &fileData, &error)) {
     printf("Error love_filesystem_newFileData: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   love_filesystem_FileData_getFilename(fileData, &str);
@@ -152,7 +152,7 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_newFile(filesystem, "hoge.lua", MODE_WRITE, &file, &error)) {
     printf("Error love_filesystem_newFile: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   love_filesystem_File_getFilename(file, &str);
@@ -166,7 +166,7 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_File_write__void_ptr(file, data, strlen(data), &error)) {
     printf("Error love_filesystem_write__void_ptr: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   const char* working = NULL;
@@ -186,13 +186,13 @@ int test_filesystem(char* argv0) {
   if (!love_filesystem_getRealDirectory(filesystem, "hoge.lua", &real, &error)) {
     printf("Error love_filesystem_getRealDirectory: %s\n", error);
     free(error);
-    return FALSE;
+    return LOVE_C_FALSE;
   }
 
   printf("Real directory: %s\n", real);
   free(real);
 
-  return TRUE;
+  return LOVE_C_TRUE;
 }
 
 int test_window() {
@@ -202,16 +202,36 @@ int test_window() {
 
   /* printf("Window isOpen: %s\n", love_window_isOpen(window)); */
 
-  return TRUE;
+  return LOVE_C_TRUE;
 }
 
 int test_graphics() {
+  char* error = NULL;
+
   LoveC_GraphicsRef graphics = love_graphics_getInstance();
 
   printf("Graphics: %x\n", graphics);
 
+  LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
+  colors[0] = malloc(sizeof(LoveC_Colorf));
+  colors[0]->r = 255;
+  colors[1] = NULL;
 
-  return TRUE;
+  if (!love_graphics_clear(graphics, colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
+    printf("Error clearing: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  free(colors);
+
+  LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
+  discards[0] = LOVE_C_TRUE;
+  discards[1] = LOVE_C_NIL;
+
+  love_graphics_discard(graphics, discards, LOVE_C_TRUE);
+
+  return LOVE_C_TRUE;
 }
 
 int main(int argc, char *argv[]) {
@@ -228,6 +248,10 @@ int main(int argc, char *argv[]) {
   }
 
   if (!test_window()) {
+    return 1;
+  }
+
+  if (!test_graphics()) {
     return 1;
   }
 

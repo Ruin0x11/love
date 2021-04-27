@@ -21,6 +21,69 @@ LoveC_GraphicsRef love_graphics_getInstance() {
   return wrap<LoveC_GraphicsRef>(inst);
 }
 
+
+void love_graphics_reset(LoveC_GraphicsRef ref) {
+  unwrap<Graphics>(ref)->reset();
+}
+
+LoveC_Bool love_graphics_clear(LoveC_GraphicsRef ref, const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError) {
+  auto graphics = unwrap<Graphics>(ref);
+
+  OptionalColorf color(Colorf(0.0f, 0.0f, 0.0f, 0.0f));
+  std::vector<OptionalColorf> colors_;
+
+  OptionalInt stencil(0);
+  OptionalDouble depth(1.0);
+
+  if (colors != nullptr) {
+    int i;
+    for (i = 0; colors[i]; i++) {
+      colors_.emplace_back(Colorf(colors[i]->r, colors[i]->g, colors[i]->b, colors[i]->a));
+    }
+  }
+
+  if (stencilOpt != LOVE_C_NIL) {
+    stencil.value = stencilOpt;
+    stencil.hasValue = true;
+  } else {
+    stencil.hasValue = false;
+  }
+
+  if (depthOpt != LOVE_C_NIL) {
+    depth.value = depthOpt;
+    depth.hasValue = true;
+  } else {
+    depth.hasValue = false;
+  }
+
+  try {
+    if (colors_.empty()) {
+      graphics->clear(color, stencil, depth);
+    } else {
+      graphics->clear(colors_, stencil, depth);
+    }
+  } catch (const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
+
+  return true;
+}
+
+void love_graphics_discard(LoveC_GraphicsRef ref, LoveC_Bool* colorbuffers, LoveC_Bool depthstencil) {
+  auto graphics = unwrap<Graphics>(ref);
+  std::vector<bool> colorbuffers_;
+
+  if (colorbuffers != nullptr) {
+    int i;
+    for (i = 0; colorbuffers[i] != LOVE_C_NIL; i++) {
+      colorbuffers_.push_back(colorbuffers[i]);
+    }
+  }
+
+  graphics->discard(colorbuffers_, depthstencil);
+}
+
 LoveC_Bool love_graphics__setDefaultShaderCode(LoveC_GraphicsRef ref, LoveC_Shader_StandardShader std, LoveC_Shader_Language lang, LoveC_Bool isGammaCorrected, LoveC_ShaderStage_StageType stage, const char* code, char** outError) {
   auto std_ = static_cast<Shader::StandardShader>(std);
   auto lang_ = static_cast<Shader::Language>(lang);
