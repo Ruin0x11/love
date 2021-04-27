@@ -212,13 +212,86 @@ int test_graphics() {
 
   printf("Graphics: %x\n", graphics);
 
-  while (LOVE_C_TRUE) {
-    LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
-    colors[0] = malloc(sizeof(LoveC_Colorf));
-    colors[0]->r = 1.0f;
-    colors[0]->g = 0.5f;
-    colors[0]->b = 0.2f;
-    colors[1] = NULL;
+  LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
+  colors[0] = malloc(sizeof(LoveC_Colorf));
+  colors[0]->r = 1.0f;
+  colors[0]->g = 1.0f;
+  colors[0]->b = 1.0f;
+  colors[1] = NULL;
+
+  LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
+  discards[0] = LOVE_C_TRUE;
+  discards[1] = LOVE_C_NIL;
+
+  LoveC_Colorf colorBox = {
+    .r = 0.86,
+    .g = 0.86,
+    .b = 0.86,
+    .a = 0.86,
+  };
+
+  LoveC_Colorf colorCell = {
+    .r = 1.0,
+    .g = 0.0,
+    .b = 1.0,
+    .a = 0.86,
+  };
+
+  int cellSize = 5;
+  int cellDrawSize = cellSize - 1;
+  int width = love_graphics_getWidth(graphics);
+  int height = love_graphics_getHeight(graphics);
+  int cellsX = width / cellSize;
+  int cellsY = height / cellSize;
+
+  int i, j;
+  char** cells = malloc(sizeof(char*)*cellsY);
+  char** nextcells = malloc(sizeof(char*)*cellsY);
+  for (i = 0; i < cellsY; i++) {
+    cells[i] = malloc(sizeof(char)*cellsX);
+    nextcells[i] = malloc(sizeof(char)*cellsX);
+    memset(cells[i], '\0', cellsX);
+    memset(nextcells[i], '\0', cellsX);
+  }
+
+  int x, y, dx, dy;
+
+  for (y = 0; y < cellsY; y++) {
+    for (x = 0; x < cellsX; x++) {
+      cells[y][x] = rand() % 2;
+    }
+  }
+
+  for (i = 0; i < 1000; i++) {
+    for (y = 0; y < cellsY; y++) {
+      for (x = 0; x < cellsX; x++) {
+        int neighborCount = 0;
+
+        for (dy = -1; dy <= 1; dy++) {
+          for (dx = -1; dx <= 1; dx++) {
+            if (!(dx == 0 && dy == 0)) {
+              if (y + dy >= 0 && y + dy < cellsY) {
+                if (x + dx >= 0 && x + dx < cellsX) {
+                  if (cells[y+dy][x+dx] == 1) {
+                    neighborCount++;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        if (neighborCount == 3 || (cells[y][x] == 1 && neighborCount == 2)) {
+          nextcells[y][x] = 1;
+        } else {
+          nextcells[y][x] = 0;
+        }
+      }
+    }
+
+    for (j = 0; j < cellsY; j++) {
+      memcpy(cells[j], nextcells[j], cellsX);
+    }
 
     if (!love_graphics_clear(graphics, (const LoveC_Colorf**)colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
       printf("Error love_graphics_clear: %s\n", error);
@@ -226,13 +299,22 @@ int test_graphics() {
       return LOVE_C_FALSE;
     }
 
-    free(colors);
-
-    LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
-    discards[0] = LOVE_C_TRUE;
-    discards[1] = LOVE_C_NIL;
-
     love_graphics_discard(graphics, discards, LOVE_C_TRUE);
+
+    for (y = 0; y < cellsY; y++) {
+      for (x = 0; x < cellsX; x++) {
+        if (cells[y][x] == 1) {
+          love_graphics_setColor(graphics, &colorCell);
+        } else {
+          love_graphics_setColor(graphics, &colorBox);
+        }
+        if (!love_graphics_rectangle(graphics, DRAW_FILL, x * cellSize, y * cellSize, cellDrawSize, cellDrawSize, 0.0, 0.0, LOVE_C_NIL, &error)) {
+          printf("Error love_graphics_rectangle: %s\n", error);
+          free(error);
+          return LOVE_C_FALSE;
+        }
+      }
+    }
 
     if (!love_graphics_present(graphics, &error)) {
       printf("Error love_graphics_present: %s\n", error);
@@ -240,6 +322,9 @@ int test_graphics() {
       return LOVE_C_FALSE;
     }
   }
+
+  free(colors);
+  free(discards);
 
   return LOVE_C_TRUE;
 }
