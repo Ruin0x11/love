@@ -27,11 +27,13 @@ int init() {
 
   printf("Exepath: %s\n", exepath);
 
-  if (!love_filesystem_setSource(filesystem, exepath, &error)) {
-    printf("Error love_filesystem_setSource: %s\n", error);
+  LoveC_Bool is_fused = love_filesystem_setSource(filesystem, exepath, &error);
+  if (is_fused) {
+    printf("Is fused\n", error);
     free(error);
-    return 0;
   }
+
+  love_filesystem_setFused(filesystem, is_fused);
 
   return 1;
 }
@@ -106,6 +108,30 @@ int main(int argc, char *argv[]) {
     free(error);
     return 1;
   }
+
+
+  const char* working = NULL;
+  love_filesystem_getWorkingDirectory(filesystem, &working);
+  printf("Working directory: %s\n", working);
+
+  char **files = malloc(sizeof(char*)*20);
+  LoveC_Int64 size;
+  love_filesystem_getDirectoryItems(filesystem, "", &files, &size);
+
+  for (LoveC_Int64 i = 0; i < size; i++) {
+    printf("FILE: %s\n", files[i]);
+  }
+  free(files);
+
+  char* real = NULL;
+  if (!love_filesystem_getRealDirectory(filesystem, "hoge.lua", &real, &error)) {
+    printf("Error love_filesystem_getRealDirectory: %s\n", error);
+    free(error);
+    return 1;
+  }
+
+  printf("Real directory: %s\n", real);
+  free(real);
 
   return 0;
 }

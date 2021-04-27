@@ -236,15 +236,17 @@ LoveC_Bool love_filesystem_append(LoveC_FilesystemRef ref, const char* filename,
     return true;
 }
 
-LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems) {
+LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems, LoveC_Int64 *outSize) {
   auto real = unwrap<Filesystem>(ref);
   std::vector<std::string> items;
 
   instance()->getDirectoryItems(dir, items);
 
   for (int i = 0; i < (int) items.size(); i++) {
-    *outItems[i] = strdup(items[i].c_str());
+    *(outItems[i]) = strdup(items[i].c_str());
   }
+
+  *outSize = items.size();
 
   return true;
 }
