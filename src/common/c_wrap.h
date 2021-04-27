@@ -1,15 +1,6 @@
 #ifndef LOVE_C_WRAP
 #define LOVE_C_WRAP
 
-#define DEFINE_C_WRAPPER_FUNCTIONS(ty, ref)     \
-  ty *unwrap(ref P) {                            \
-    return reinterpret_cast<ty*>(P);                    \
-  }                                                     \
-                                                        \
-  ref wrap(const ty *P) {                        \
-    return reinterpret_cast<ref>(const_cast<ty*>(P));   \
-  }
-
 #ifdef __clang__
 #define LOVE_C_STRICT_PROTOTYPES_BEGIN                                         \
   _Pragma("clang diagnostic push")                                             \

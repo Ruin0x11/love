@@ -5,13 +5,13 @@
 namespace love {
 namespace love_c {
 
-LoveC_Bool register_module(const WrappedModule& m, char** error) {
+LoveC_Bool register_module(const WrappedModule& m, char** outError) {
   m.type->init();
 
   try {
     Module::registerInstance(m.module);
   } catch (const std::exception& e) {
-    *error = strdup(e.what());
+    *outError = strdup(e.what());
     return false;
   }
 

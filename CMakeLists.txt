@@ -448,6 +448,10 @@ set(LOVE_SRC_MODULE_FILESYSTEM_ROOT
 	src/modules/filesystem/FileData.h
 	src/modules/filesystem/Filesystem.cpp
 	src/modules/filesystem/Filesystem.h
+	src/modules/filesystem/c_File.cpp
+	src/modules/filesystem/c_File.h
+	src/modules/filesystem/c_FileData.cpp
+	src/modules/filesystem/c_FileData.h
 	src/modules/filesystem/c_Filesystem.cpp
 	src/modules/filesystem/c_Filesystem.h
 	src/modules/filesystem/wrap_DroppedFile.cpp
@@ -767,6 +771,12 @@ set(LOVE_SRC_MODULE_LOVE_C
 	src/modules/love_c/runtime_c.cpp
 	src/modules/love_c/runtime_c.h
 	src/modules/love_c/types.h
+	src/modules/love_c/c_Object.cpp
+	src/modules/love_c/c_Object.h
+	# src/modules/love_c/c_Module.cpp
+	src/modules/love_c/c_Module.h
+	# src/modules/love_c/c_Data.cpp
+	src/modules/love_c/c_Data.h
 )
 
 source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})

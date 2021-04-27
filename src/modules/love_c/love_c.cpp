@@ -6,7 +6,7 @@
 #include "love_c.h"
 
 LoveC_Bool love_c_init(char** error) {
-  if (!love_filesystem_register_module(error)) {
+  if (!love_filesystem_registerModule(error)) {
     return false;
   }
 

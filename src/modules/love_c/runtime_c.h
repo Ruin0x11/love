@@ -5,12 +5,22 @@
 
 #include "common/runtime.h"
 
+template<typename T, typename R>
+inline T* unwrap(R ref) {
+  return reinterpret_cast<T*>(ref);
+}
+
+template<typename R, typename T>
+inline R wrap(const T* ptr) {
+  return reinterpret_cast<R>(const_cast<T*>(ptr));
+}
+
 namespace love
 {
 namespace love_c
 {
 
-LoveC_Bool register_module(const WrappedModule& m, char** error);
+LoveC_Bool register_module(const WrappedModule& m, char** outError);
 
 }
 }
