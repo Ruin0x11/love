@@ -138,6 +138,23 @@ love${love_amsuffix}_LIBTOOLFLAGS = --tag=CXX
 endif
 endif
 
+
+if LOVE_BUILD_C_API
+# LÖVE executable
+bin_PROGRAMS = love_c${love_suffix}
+#love_LDFLAGS =
+love_c${love_amsuffix}_LDADD = liblove${love_suffix}.la \$(lua_LIBS)
+love_c${love_amsuffix}_SOURCES = test/love_c.c
+
+if LOVE_TARGET_OSX
+love_c${love_amsuffix}_LIBTOOLFLAGS = --tag=OBJCXX
+love_c${love_amsuffix}_SOURCES += \\
+    ./common/macosx.mm
+else
+love_c${love_amsuffix}_LIBTOOLFLAGS = --tag=CXX
+endif
+endif
+
 # Compile scripts
 .lua.lua.h:
 	cd ./scripts; \

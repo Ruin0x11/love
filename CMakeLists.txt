@@ -50,6 +50,7 @@ endif()
 
 option(LOVE_JIT "Use LuaJIT" TRUE)
 option(LOVE_MPG123 "Use mpg123" TRUE)
+option(LOVE_C_API "C API test" TRUE)
 
 if(LOVE_JIT)
 	if(APPLE)
@@ -753,6 +754,16 @@ set(LOVE_SRC_MODULE_LOVE
 )
 
 source_group("modules\\love" FILES ${LOVE_SRC_MODULE_LOVE})
+
+#
+# love_c (module)
+#
+set(LOVE_SRC_MODULE_LOVE_c
+	src/modules/love/love_c.cpp
+	src/modules/love/love_c.h
+)
+
+source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})
 
 #
 # love.mouse
@@ -1714,6 +1725,7 @@ set(LOVE_LIB_SRC
 	${LOVE_SRC_MODULE_JOYSTICK}
 	${LOVE_SRC_MODULE_KEYBOARD}
 	${LOVE_SRC_MODULE_LOVE}
+	${LOVE_SRC_MODULE_LOVE_C}
 	${LOVE_SRC_MODULE_MATH}
 	${LOVE_SRC_MODULE_MOUSE}
 	${LOVE_SRC_MODULE_PHYSICS}
@@ -1770,6 +1782,14 @@ target_link_libraries(${LOVE_EXE_NAME} ${LOVE_LIB_NAME})
 if(MSVC)
 	add_executable(${LOVE_CONSOLE_EXE_NAME} src/love.cpp ${LOVE_RC})
 	target_link_libraries(${LOVE_CONSOLE_EXE_NAME} ${LOVE_LIB_NAME})
+endif()
+
+if(LOVE_C_API)
+  set(LOVE_C_API_EXE_NAME love_c)
+
+  add_executable(${LOVE_C_API_EXE_NAME} WIN32 src/test/love_c.c ${LOVE_RC})
+  target_link_libraries(${LOVE_C_API_EXE_NAME} ${LOVE_LIB_NAME})
+  target_include_directories(${LOVE_C_API_EXE_NAME} PUBLIC ${LOVE_INCLUDE_DIRS})
 endif()
 
 function(post_step_move_dll ARG_POST_TARGET ARG_TARGET_OR_FILE)

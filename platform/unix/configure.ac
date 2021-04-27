@@ -120,6 +120,10 @@ AM_CONDITIONAL([LOVE_BUILD_EXE], [test "x$enable_exe" != xno])
 AM_CONDITIONAL([LOVE_NOMPG123], [test "x$enable_mpg123" = xno])
 AM_CONDITIONAL([LOVE_TARGET_OSX], [test "x$enable_osx" != xno])
 
+AS_VAR_IF([enable_c_api], [yes], [], #else
+	  AC_DEFINE([LOVE_BUILD_C_API], [], [C API test]))
+AM_CONDITIONAL([LOVE_BUILD_C_API], [test "x$enable_c_api" != xno])
+
 # Automatic script file rebuilding
 AC_CHECK_PROGS([LUA_EXECUTABLE], ["${with_lua}${with_luaversion}" "${with_lua}" "lua"], [:])
 AS_VAR_IF([LUA_EXECUTABLE], [:],

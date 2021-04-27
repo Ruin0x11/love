@@ -100,6 +100,7 @@
 #	define LOVE_BUILD
 #	define LOVE_BUILD_STANDALONE
 #	define LOVE_BUILD_EXE
+#	define LOVE_BUILD_C_API
 //#	define LOVE_BUILD_DLL
 #endif
 
