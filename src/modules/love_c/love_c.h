@@ -1,18 +1,16 @@
-#ifndef __LOVE_C_H_
-#define __LOVE_C_H_
+#ifndef LOVE_LOVE_C_H
+#define LOVE_LOVE_C_H
 
 // LOVE
 #include "common/config.h"
+#include "common/c_wrap.h"
+#include "types.h"
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif
+LOVE_C_EXTERN_C_BEGIN
 
-LOVE_EXPORT const char *love_version();
+LOVE_EXPORT LoveC_Bool love_c_init(char** error);
+LOVE_EXPORT const char *love_c_version();
 
-#ifdef __cplusplus
-}
-#endif
+LOVE_C_EXTERN_C_END
 
-#endif // __LOVE_C_H_
+#endif // LOVE_LOVE_C_H

@@ -1,9 +1,19 @@
 // LOVE
 #include "common/version.h"
 
+#include "modules/filesystem/c_Filesystem.h"
+
 #include "love_c.h"
 
-const char *love_version()
+LoveC_Bool love_c_init(char** error) {
+  if (!love_filesystem_register_module(error)) {
+    return false;
+  }
+
+  return true;
+}
+
+const char *love_c_version()
 {
 	// Do not refer to love::VERSION here, the linker
 	// will patch it back up to the executable's one..

@@ -269,6 +269,7 @@ endfunction()
 set(LOVE_SRC_COMMON
 	src/common/b64.cpp
 	src/common/b64.h
+	src/common/c_wrap.h
 	src/common/Color.h
 	src/common/config.h
 	src/common/Data.cpp
@@ -447,6 +448,8 @@ set(LOVE_SRC_MODULE_FILESYSTEM_ROOT
 	src/modules/filesystem/FileData.h
 	src/modules/filesystem/Filesystem.cpp
 	src/modules/filesystem/Filesystem.h
+	src/modules/filesystem/c_Filesystem.cpp
+	src/modules/filesystem/c_Filesystem.h
 	src/modules/filesystem/wrap_DroppedFile.cpp
 	src/modules/filesystem/wrap_DroppedFile.h
 	src/modules/filesystem/wrap_File.cpp
@@ -758,9 +761,12 @@ source_group("modules\\love" FILES ${LOVE_SRC_MODULE_LOVE})
 #
 # love_c (module)
 #
-set(LOVE_SRC_MODULE_LOVE_c
-	src/modules/love/love_c.cpp
-	src/modules/love/love_c.h
+set(LOVE_SRC_MODULE_LOVE_C
+	src/modules/love_c/love_c.cpp
+	src/modules/love_c/love_c.h
+	src/modules/love_c/runtime_c.cpp
+	src/modules/love_c/runtime_c.h
+	src/modules/love_c/types.h
 )
 
 source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})
