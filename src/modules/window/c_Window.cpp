@@ -13,11 +13,9 @@
 using namespace love;
 using namespace love::window;
 
-#define instance() (Module::getInstance<Window>(Module::M_WINDOW))
-
 
 LoveC_WindowRef love_window_getInstance() {
-  auto inst = instance();
+  auto inst = Module::getInstance<Window>(Module::M_WINDOW);
   return wrap<LoveC_WindowRef>(inst);
 }
 
@@ -134,7 +132,7 @@ LoveC_Int64 love_window_getFullscreenModes(LoveC_WindowRef ref, int indexOpt, Lo
     window->getPosition(x, y, displayindex);
   }
 
-  std::vector<Window::WindowSize> modes = instance()->getFullscreenSizes(displayindex);
+  std::vector<Window::WindowSize> modes = window->getFullscreenSizes(displayindex);
 
   for (size_t i = 0; i < modes.size(); i++) {
     outModes[i]->width = modes[i].width;
@@ -217,7 +215,7 @@ void love_window_getPosition(LoveC_WindowRef ref, int* outX, int* outY, int* out
   int x = 0;
   int y = 0;
   int displayindex = 0;
-  instance()->getPosition(x, y, displayindex);
+  window->getPosition(x, y, displayindex);
 
   *outX = x;
   *outY = y;
@@ -338,7 +336,7 @@ LoveC_Bool love_window_isMinimized(LoveC_WindowRef ref) {
   return unwrap<Window>(ref)->isMinimized();
 }
 
-int love_window_showMessageBox__simple(LoveC_WindowRef ref, const char* title, const char* message, LoveC_Window_MessageBoxType type, bool attachToWindow) {
+int love_window_showMessageBox(LoveC_WindowRef ref, const char* title, const char* message, LoveC_Window_MessageBoxType type, LoveC_Bool attachToWindow) {
   auto window = unwrap<Window>(ref);
 
   std::string title_(title);
@@ -378,7 +376,7 @@ void love_window_requestAttention(LoveC_WindowRef ref, LoveC_Bool continuous) {
 }
 
 LoveC_Bool love_window_registerModule(char** outError) {
-  Window *instance = instance();
+  Window *instance = Module::getInstance<Window>(Module::M_WINDOW);
   if (instance == nullptr) {
     try {
       instance = new sdl::Window();

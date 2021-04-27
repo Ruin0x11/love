@@ -5,6 +5,8 @@
 #include "common/c_wrap.h"
 #include "modules/love_c/types.h"
 
+#include "modules/image/c_Image.h"
+#include "modules/image/c_ImageData.h"
 #include "c_PixelFormat.h"
 #include "c_Texture.h"
 
@@ -33,6 +35,12 @@ typedef struct LoveC_Canvas_Settings {
   int msaa;
   LoveC_OptionalBool readable;
 } LoveC_Canvas_Settings;
+
+LOVE_EXPORT int LoveC_Canvas_getMSAA(LoveC_CanvasRef ref);
+/* { "renderTo", w_Canvas_renderTo }, */
+LOVE_EXPORT LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, LoveC_ImageRef image, int slice, int mipmap, LoveC_Rect* rect, LoveC_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool LoveC_Canvas_generateMipmaps(LoveC_CanvasRef ref, char** outError);
+LOVE_EXPORT LoveC_Canvas_MipmapMode LoveC_Canvas_getMipmapMode(LoveC_CanvasRef ref);
 
 
 LOVE_C_EXTERN_C_END

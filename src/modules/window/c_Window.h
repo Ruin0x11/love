@@ -111,11 +111,12 @@ LOVE_EXPORT void love_window_maximize(LoveC_WindowRef ref);
 LOVE_EXPORT void love_window_restore(LoveC_WindowRef ref);
 LOVE_EXPORT LoveC_Bool love_window_isMaximized(LoveC_WindowRef ref);
 LOVE_EXPORT LoveC_Bool love_window_isMinimized(LoveC_WindowRef ref);
-LOVE_EXPORT int love_window_showMessageBox__simple(LoveC_WindowRef ref, const char* title, const char* message, LoveC_Window_MessageBoxType type, LoveC_Bool attachToWindow);
+LOVE_EXPORT int love_window_showMessageBox(LoveC_WindowRef ref, const char* title, const char* message, LoveC_Window_MessageBoxType type, LoveC_Bool attachToWindow);
 LOVE_EXPORT int love_window_showMessageBox__MessageBoxData(LoveC_WindowRef ref, const LoveC_Window_MessageBoxData* messageBox);
 LOVE_EXPORT void love_window_requestAttention(LoveC_WindowRef ref, LoveC_Bool continuous);
 
 LOVE_EXPORT LoveC_Bool love_window_registerModule(char** outError);
+
 
 LOVE_C_EXTERN_C_END
 

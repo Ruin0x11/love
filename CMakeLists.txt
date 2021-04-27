@@ -567,28 +567,28 @@ set(LOVE_SRC_MODULE_GRAPHICS_ROOT
 	src/modules/graphics/Video.h
 	src/modules/graphics/Volatile.cpp
 	src/modules/graphics/Volatile.h
-	# src/modules/graphics/c_Canvas.cpp
-	# src/modules/graphics/c_Canvas.h
+	src/modules/graphics/c_Canvas.cpp
+	src/modules/graphics/c_Canvas.h
 	# src/modules/graphics/c_Font.cpp
-	# src/modules/graphics/c_Font.h
+	src/modules/graphics/c_Font.h
 	src/modules/graphics/c_Graphics.cpp
 	src/modules/graphics/c_Graphics.h
 	# src/modules/graphics/c_Image.cpp
-	# src/modules/graphics/c_Image.h
+	src/modules/graphics/c_Image.h
 	# src/modules/graphics/c_Mesh.cpp
-	# src/modules/graphics/c_Mesh.h
+	src/modules/graphics/c_Mesh.h
 	# src/modules/graphics/c_ParticleSystem.cpp
-	# src/modules/graphics/c_ParticleSystem.h
+	src/modules/graphics/c_ParticleSystem.h
 	# src/modules/graphics/c_Quad.cpp
-	# src/modules/graphics/c_Quad.h
+	src/modules/graphics/c_Quad.h
 	# src/modules/graphics/c_Shader.cpp
-	# src/modules/graphics/c_Shader.h
+	src/modules/graphics/c_Shader.h
 	# src/modules/graphics/c_SpriteBatch.cpp
-	# src/modules/graphics/c_SpriteBatch.h
+	src/modules/graphics/c_SpriteBatch.h
 	# src/modules/graphics/c_Texture.cpp
-	# src/modules/graphics/c_Texture.h
+	src/modules/graphics/c_Texture.h
 	# src/modules/graphics/c_Text.cpp
-	# src/modules/graphics/c_Text.h
+	src/modules/graphics/c_Text.h
 	# src/modules/graphics/c_Video.cpp
 	# src/modules/graphics/c_Video.h
 	src/modules/graphics/wrap_Canvas.cpp
@@ -663,6 +663,12 @@ set(LOVE_SRC_MODULE_IMAGE_ROOT
 	src/modules/image/ImageData.h
 	src/modules/image/ImageDataBase.cpp
 	src/modules/image/ImageDataBase.h
+	# src/modules/image/wrap_CompressedImageData.cpp
+	src/modules/image/wrap_CompressedImageData.h
+	src/modules/image/c_Image.cpp
+	src/modules/image/c_Image.h
+	src/modules/image/wrap_ImageData.cpp
+	src/modules/image/wrap_ImageData.h
 	src/modules/image/wrap_CompressedImageData.cpp
 	src/modules/image/wrap_CompressedImageData.h
 	src/modules/image/wrap_Image.cpp

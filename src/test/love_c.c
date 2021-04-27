@@ -200,7 +200,9 @@ int test_window() {
 
   printf("Window: %x\n", window);
 
-  /* printf("Window isOpen: %s\n", love_window_isOpen(window)); */
+  printf("Window isOpen: %d\n", love_window_isOpen(window));
+
+  love_window_showMessageBox(window, "Test Window", "spiral matai", MESSAGEBOX_INFO, LOVE_C_FALSE);
 
   return LOVE_C_TRUE;
 }
