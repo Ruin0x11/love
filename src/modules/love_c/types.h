@@ -9,4 +9,6 @@ typedef int LoveC_Int;
 typedef int64_t LoveC_Int64;
 typedef uint64_t LoveC_UInt64;
 
+#define LOVE_C_NIL (-1)
+
 #endif // LOVE_C_TYPES_H

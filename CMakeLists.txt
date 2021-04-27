@@ -1107,6 +1107,8 @@ source_group("modules\\video\\theora" FILES ${LOVE_SRC_MODULE_VIDEO_THEORA})
 set(LOVE_SRC_MODULE_WINDOW_ROOT
 	src/modules/window/Window.cpp
 	src/modules/window/Window.h
+	src/modules/window/c_Window.cpp
+	src/modules/window/c_Window.h
 	src/modules/window/wrap_Window.cpp
 	src/modules/window/wrap_Window.h
 )

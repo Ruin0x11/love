@@ -2,11 +2,16 @@
 #include "common/version.h"
 
 #include "modules/filesystem/c_Filesystem.h"
+#include "modules/window/c_Window.h"
 
 #include "love_c.h"
 
 LoveC_Bool love_c_init(char** error) {
   if (!love_filesystem_registerModule(error)) {
+    return false;
+  }
+
+  if (!love_window_registerModule(error)) {
     return false;
   }
 
