@@ -24,7 +24,7 @@ LOVE_EXPORT LoveC_GraphicsRef love_graphics_getInstance();
 LOVE_EXPORT void love_graphics_reset(LoveC_GraphicsRef ref);
 LOVE_EXPORT LoveC_Bool love_graphics_clear(LoveC_GraphicsRef ref, const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError);
 LOVE_EXPORT void love_graphics_discard(LoveC_GraphicsRef ref, LoveC_Bool* colorbuffers, LoveC_Bool depthstencil);
-LOVE_EXPORT void love_graphics_present(LoveC_GraphicsRef ref);
+LOVE_EXPORT LoveC_Bool love_graphics_present(LoveC_GraphicsRef ref, char** outError);
 LOVE_EXPORT void love_graphics_isCreated(LoveC_GraphicsRef ref);
 LOVE_EXPORT void love_graphics_isActive(LoveC_GraphicsRef ref);
 LOVE_EXPORT void love_graphics_isGammaCorrect(LoveC_GraphicsRef ref);

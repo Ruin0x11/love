@@ -84,6 +84,20 @@ void love_graphics_discard(LoveC_GraphicsRef ref, LoveC_Bool* colorbuffers, Love
   graphics->discard(colorbuffers_, depthstencil);
 }
 
+LoveC_Bool love_graphics_present(LoveC_GraphicsRef ref, char** outError) {
+  auto graphics = unwrap<Graphics>(ref);
+
+  try {
+    // TODO screenshot callbacks
+    graphics->present(nullptr);
+  } catch (const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
+
+  return true;
+}
+
 LoveC_Bool love_graphics__setDefaultShaderCode(LoveC_GraphicsRef ref, LoveC_Shader_StandardShader std, LoveC_Shader_Language lang, LoveC_Bool isGammaCorrected, LoveC_ShaderStage_StageType stage, const char* code, char** outError) {
   auto std_ = static_cast<Shader::StandardShader>(std);
   auto lang_ = static_cast<Shader::Language>(lang);

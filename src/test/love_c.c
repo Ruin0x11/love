@@ -212,24 +212,34 @@ int test_graphics() {
 
   printf("Graphics: %x\n", graphics);
 
-  LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
-  colors[0] = malloc(sizeof(LoveC_Colorf));
-  colors[0]->r = 255;
-  colors[1] = NULL;
+  while (LOVE_C_TRUE) {
+    LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
+    colors[0] = malloc(sizeof(LoveC_Colorf));
+    colors[0]->r = 1.0f;
+    colors[0]->g = 0.5f;
+    colors[0]->b = 0.2f;
+    colors[1] = NULL;
 
-  if (!love_graphics_clear(graphics, colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
-    printf("Error clearing: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
+    if (!love_graphics_clear(graphics, (const LoveC_Colorf**)colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
+      printf("Error love_graphics_clear: %s\n", error);
+      free(error);
+      return LOVE_C_FALSE;
+    }
+
+    free(colors);
+
+    LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
+    discards[0] = LOVE_C_TRUE;
+    discards[1] = LOVE_C_NIL;
+
+    love_graphics_discard(graphics, discards, LOVE_C_TRUE);
+
+    if (!love_graphics_present(graphics, &error)) {
+      printf("Error love_graphics_present: %s\n", error);
+      free(error);
+      return LOVE_C_FALSE;
+    }
   }
-
-  free(colors);
-
-  LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
-  discards[0] = LOVE_C_TRUE;
-  discards[1] = LOVE_C_NIL;
-
-  love_graphics_discard(graphics, discards, LOVE_C_TRUE);
 
   return LOVE_C_TRUE;
 }
