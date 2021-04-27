@@ -4,12 +4,11 @@
 #include "common/config.h"
 #include "common/c_wrap.h"
 
-#include "c_Object.h"
-
 LOVE_C_EXTERN_C_BEGIN
 
 
-typedef LoveC_ObjectRef LoveC_ModuleRef;
+struct LoveC_ModuleHandle;
+typedef struct LoveC_ModuleHandle* LoveC_ModuleRef;
 
 
 LOVE_C_EXTERN_C_END

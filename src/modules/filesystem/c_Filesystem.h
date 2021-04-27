@@ -13,7 +13,8 @@
 LOVE_C_EXTERN_C_BEGIN
 
 
-typedef LoveC_ModuleRef LoveC_FilesystemRef;
+struct LoveC_FilesystemHandle;
+typedef struct LoveC_FilesystemHandle* LoveC_FilesystemRef;
 
 typedef enum LoveC_Filesystem_FileType {
   FILETYPE_FILE,

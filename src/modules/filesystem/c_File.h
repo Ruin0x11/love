@@ -5,14 +5,14 @@
 #include "common/c_wrap.h"
 #include "modules/love_c/types.h"
 
-#include "modules/love_c/c_Object.h"
 #include "modules/love_c/c_Data.h"
 #include "c_FileData.h"
 
 LOVE_C_EXTERN_C_BEGIN
 
 
-typedef LoveC_ObjectRef LoveC_FileRef;
+struct LoveC_FileHandle;
+typedef struct LoveC_FileHandle* LoveC_FileRef;
 
 typedef enum LoveC_File_Mode {
   MODE_CLOSED,

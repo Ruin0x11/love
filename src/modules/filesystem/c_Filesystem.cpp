@@ -118,7 +118,7 @@ LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const ch
       return false;
     }
 
-    *outFileData = t;
+    *outFileData = wrap<LoveC_FileDataRef>(t);
     return true;
 }
 
@@ -201,7 +201,7 @@ LoveC_Bool love_filesystem_read(LoveC_FilesystemRef ref, const char* filename, L
     auto real = unwrap<Filesystem>(ref);
 
     try {
-      *outFileData = real->read(filename, size);
+      *outFileData = wrap<LoveC_FileDataRef>(real->read(filename, size));
     } catch(const std::exception& e){
       *outError = strdup(e.what());
       return false;

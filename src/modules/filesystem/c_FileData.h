@@ -5,12 +5,11 @@
 #include "common/c_wrap.h"
 #include "modules/love_c/types.h"
 
-#include "modules/love_c/c_Data.h"
-
 LOVE_C_EXTERN_C_BEGIN
 
 
-typedef LoveC_DataRef LoveC_FileDataRef;
+struct LoveC_FileDataHandle;
+typedef struct LoveC_FileDataHandle* LoveC_FileDataRef;
 
 LOVE_EXPORT void love_filesystem_FileData_getFilename(LoveC_FileDataRef ref, const char** outFilename);
 LOVE_EXPORT void love_filesystem_FileData_getExtension(LoveC_FileDataRef ref, const char** outExtension);

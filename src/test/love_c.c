@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "../modules/love_c/love_c.h"
+#include "../modules/love_c/c_Object.h"
 #include "../modules/filesystem/c_Filesystem.h"
 
 int init() {
@@ -68,7 +69,7 @@ int main(int argc, char *argv[]) {
 
   love_filesystem_getIdentity(filesystem, &str);
   printf("Identity: %s\n", str);
-  printf("Refcount: %d\n", love_Object_getReferenceCount(filesystem));
+  printf("Refcount: %d\n", love_Object_getReferenceCount((LoveC_ObjectRef)filesystem));
 
   LoveC_FileDataRef fileData = NULL;
 
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
 
   char data[] = "print('piyo')";
 
-  if (!love_filesystem_File_write__void_ptr(file, data, 10, &error)) {
+  if (!love_filesystem_File_write__void_ptr(file, data, strlen(data), &error)) {
     printf("Error love_filesystem_write__void_ptr: %s\n", error);
     free(error);
     return 1;
