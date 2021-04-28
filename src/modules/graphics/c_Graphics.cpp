@@ -310,6 +310,30 @@ LoveC_QuadRef love_graphics_newQuad(LoveC_GraphicsRef ref, const LoveC_Quad_View
   return wrap<LoveC_QuadRef>(quad);
 }
 
+LoveC_Bool love_graphics_newFont(LoveC_GraphicsRef ref, LoveC_Font_RasterizerRef rasterizer, LoveC_Texture_Filter* filter, LoveC_FontRef* outFont, char** outError) {
+  auto graphics = unwrap<Graphics>(ref);
+  auto rasterizer_ = unwrap<font::Rasterizer>(rasterizer);
+
+  Texture::Filter filter_;
+  filter_.min = static_cast<Texture::FilterMode>(filter->min);
+  filter_.mag = static_cast<Texture::FilterMode>(filter->mag);
+  filter_.mipmap = static_cast<Texture::FilterMode>(filter->mipmap);
+  filter_.anisotropy = filter->anisotropy;
+
+  Font* t;
+
+  try {
+    t = graphics->newFont(rasterizer_, filter_);
+  } catch (const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
+
+  *outFont = wrap<LoveC_FontRef>(t);
+
+  return true;
+}
+
 LoveC_Bool love_graphics_newSpriteBatch(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int size, LoveC_Graphics_Vertex_Usage usage, LoveC_SpriteBatchRef* outSpriteBatch, char** outError) {
   auto graphics = unwrap<Graphics>(ref);
 
@@ -976,7 +1000,7 @@ Font::ColoredString convertColoredString(const LoveC_Font_ColoredString* str) {
   return std::move(str_);
 }
 
-LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString** strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError) {
+LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto graphics = unwrap<Graphics>(ref);
   std::vector<Font::ColoredString> strs_;
 
@@ -985,16 +1009,16 @@ LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredSt
     return false;
   }
 
-  int i;
-  for (i = 0; strs[i]; i++) {
-    strs_.push_back(convertColoredString(strs[i]));
+
+  for (; strs->str; strs++) {
+    strs_.push_back(convertColoredString(strs));
   }
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
     if (fontOpt != nullptr) {
-      auto font_ = unwrap<Font>(fontOpt);
+      auto font_ = unwrap<Font>(*fontOpt);
       graphics->print(strs_, font_, m);
     } else {
       graphics->print(strs_, m);
@@ -1007,7 +1031,7 @@ LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredSt
   return true;
 }
 
-LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString** strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError) {
+LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto graphics = unwrap<Graphics>(ref);
   auto align_ = static_cast<Font::AlignMode>(align);
   std::vector<Font::ColoredString> strs_;
@@ -1018,8 +1042,8 @@ LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredS
   }
 
   int i;
-  for (i = 0; strs[i]; i++) {
-    strs_.push_back(convertColoredString(strs[i]));
+  for (; strs; strs++) {
+    strs_.push_back(convertColoredString(strs));
   }
 
   Matrix4 m = convertMatrix4(matrixOpt);

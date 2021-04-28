@@ -100,6 +100,7 @@ LoveC_Bool love_image_newCubeFaces(LoveC_ImageRef ref, LoveC_ImageDataRef imageD
   return true;
 }
 
+
 LoveC_Bool love_image_registerModule(char** outError) {
   Image *instance = Module::getInstance<Image>(Module::M_IMAGE);
   if (instance == nullptr) {

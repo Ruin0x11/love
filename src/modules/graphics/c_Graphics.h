@@ -6,6 +6,7 @@
 #include "modules/love_c/types.h"
 
 #include "modules/love_c/c_Module.h"
+#include "modules/love_c/c_Matrix.h"
 #include "c_Canvas.h"
 #include "c_Font.h"
 #include "c_Image.h"
@@ -16,6 +17,7 @@
 #include "c_ShaderStage.h"
 #include "c_SpriteBatch.h"
 #include "c_Texture.h"
+#include "modules/font/c_Rasterizer.h"
 
 LOVE_C_EXTERN_C_BEGIN
 
@@ -270,8 +272,7 @@ LOVE_EXPORT void love_graphics_getStencilTest(LoveC_GraphicsRef ref, LoveC_Graph
 /* LOVE_EXPORT void love_graphics_newVolumeImage(LoveC_GraphicsRef ref); */
 LOVE_EXPORT LoveC_Bool love_graphics_newImage(LoveC_GraphicsRef ref, LoveC_Texture_TextureType type, LoveC_Image_Settings* settingsOpt, LoveC_ImageRef* outImage, char** outError);
 LOVE_EXPORT LoveC_QuadRef love_graphics_newQuad(LoveC_GraphicsRef ref, const LoveC_Quad_Viewport* v, double sw, double sh);
-/* LOVE_EXPORT void love_graphics_newFont(LoveC_GraphicsRef ref); */
-/* LOVE_EXPORT void love_graphics_newImageFont(LoveC_GraphicsRef ref); */
+LOVE_EXPORT LoveC_Bool love_graphics_newFont(LoveC_GraphicsRef ref, LoveC_Font_RasterizerRef rasterizer, LoveC_Texture_Filter* filter, LoveC_FontRef* outFont, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_newSpriteBatch(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int size, LoveC_Graphics_Vertex_Usage usage, LoveC_SpriteBatchRef* outSpriteBatch, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_newParticleSystem(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int size, LoveC_ParticleSystemRef* outParticleSystem, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_newCanvas(LoveC_GraphicsRef ref, const LoveC_Canvas_Settings* settingsOpt, LoveC_CanvasRef* outCanvas, char** outError);
@@ -331,8 +332,8 @@ LOVE_EXPORT LoveC_Bool love_graphics_drawLayer(LoveC_GraphicsRef ref, LoveC_Text
 LOVE_EXPORT LoveC_Bool love_graphics_drawLayer__quad(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int layer, LoveC_QuadRef quad, const LoveC_Matrix4* matrixOpt, char** outError);
 
 LOVE_EXPORT LoveC_Bool love_graphics_drawInstanced(LoveC_GraphicsRef ref, LoveC_MeshRef mesh, const LoveC_Matrix4* matrixOpt, int instancecount, char** outError);
-LOVE_EXPORT LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString** strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError);
-LOVE_EXPORT LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString** strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError);
+LOVE_EXPORT LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError);
+LOVE_EXPORT LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_points(LoveC_GraphicsRef ref, const LoveC_Vector2* positions, const LoveC_Colorf* colors, LoveC_Int64 numpoints, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_polyline(LoveC_GraphicsRef ref, const LoveC_Vector2* coords, LoveC_Int64 numvertices, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_rectangle(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, float x, float y, float w, float h, float rx, float ry, LoveC_OptionalInt points, char** outError);

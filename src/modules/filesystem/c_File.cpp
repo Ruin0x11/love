@@ -60,6 +60,7 @@ LoveC_Bool love_filesystem_File_read__FileData(LoveC_FileRef ref, LoveC_Int64 si
   }
 
   *outFileData = wrap<LoveC_FileDataRef>(d);
+
   return true;
 }
 

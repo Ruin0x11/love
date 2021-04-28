@@ -50,7 +50,7 @@ LOVE_EXPORT LoveC_Bool love_filesystem_unmount__string(LoveC_FilesystemRef ref, 
 
 LOVE_EXPORT LoveC_Bool love_filesystem_newFile(LoveC_FilesystemRef ref, const char* filename, LoveC_File_Mode mode, LoveC_FileRef *outFile, char** outError);
 
-LOVE_EXPORT LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* str, const char* filename, LoveC_FileDataRef *outFileData, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError);
 // TODO love_filesystem_newFileData__File
 
 LOVE_EXPORT void love_filesystem_getWorkingDirectory(LoveC_FilesystemRef ref, const char** outWorkingDirectory);
@@ -66,7 +66,7 @@ LOVE_EXPORT LoveC_Bool love_filesystem_remove(LoveC_FilesystemRef ref, const cha
 LOVE_EXPORT LoveC_Bool love_filesystem_read(LoveC_FilesystemRef ref, const char* filename, LoveC_Int64 size, LoveC_FileDataRef *outFileData, char** outError);
 LOVE_EXPORT LoveC_Bool love_filesystem_write(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError);
 LOVE_EXPORT LoveC_Bool love_filesystem_append(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError);
-LOVE_EXPORT LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems, LoveC_Int64 *outSize);
+LOVE_EXPORT LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems);
 LOVE_EXPORT void love_filesystem_setSymlinksEnabled(LoveC_FilesystemRef ref, LoveC_Bool enable);
 LOVE_EXPORT LoveC_Bool love_filesystem_areSymlinksEnabled(LoveC_FilesystemRef ref);
 

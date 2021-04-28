@@ -103,14 +103,14 @@ LoveC_Bool love_filesystem_newFile(LoveC_FilesystemRef ref, const char* filename
 	return true;
 }
 
-LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* str, const char* filename, LoveC_FileDataRef *outFileData, char** outError) {
+LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError) {
     auto filesystem = unwrap<Filesystem>(ref);
 
-	size_t length = 0;
+	size_t length = strlen(data);
 	FileData *t = nullptr;
 
     try {
-      t = filesystem->newFileData(str, length, filename);
+      t = filesystem->newFileData(data, length, filename);
     } catch(const std::exception& e) {
       *outError = strdup(e.what());
       return false;
@@ -234,17 +234,19 @@ LoveC_Bool love_filesystem_append(LoveC_FilesystemRef ref, const char* filename,
     return true;
 }
 
-LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems, LoveC_Int64 *outSize) {
+LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems) {
   auto filesystem = unwrap<Filesystem>(ref);
   std::vector<std::string> items;
 
   filesystem->getDirectoryItems(dir, items);
 
+  *outItems = (char**)malloc(sizeof(char*)*(items.size()+1));
+
   for (int i = 0; i < (int) items.size(); i++) {
-    *(outItems[i]) = strdup(items[i].c_str());
+    (*outItems)[i] = strdup(items[i].c_str());
   }
 
-  *outSize = items.size();
+  (*outItems)[items.size()] = nullptr;
 
   return true;
 }

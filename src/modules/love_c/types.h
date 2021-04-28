@@ -44,11 +44,6 @@ typedef struct LoveC_Vector2
   float y;
 } LoveC_Vector2;
 
-typedef struct LoveC_Matrix4
-{
-  float elements[16];
-} LoveC_Matrix4;
-
 typedef struct LoveC_Rect
 {
   int x, y;

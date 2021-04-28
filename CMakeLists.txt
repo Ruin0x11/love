@@ -496,6 +496,12 @@ set(LOVE_SRC_MODULE_FONT_ROOT
 	src/modules/font/Rasterizer.h
 	src/modules/font/TrueTypeRasterizer.cpp
 	src/modules/font/TrueTypeRasterizer.h
+	src/modules/font/c_Font.cpp
+	src/modules/font/c_Font.h
+	# src/modules/font/c_GlyphData.cpp
+	src/modules/font/c_GlyphData.h
+	src/modules/font/c_Rasterizer.cpp
+	src/modules/font/c_Rasterizer.h
 	src/modules/font/wrap_Font.cpp
 	src/modules/font/wrap_Font.h
 	src/modules/font/wrap_GlyphData.cpp
@@ -569,7 +575,7 @@ set(LOVE_SRC_MODULE_GRAPHICS_ROOT
 	src/modules/graphics/Volatile.h
 	src/modules/graphics/c_Canvas.cpp
 	src/modules/graphics/c_Canvas.h
-	# src/modules/graphics/c_Font.cpp
+	src/modules/graphics/c_Font.cpp
 	src/modules/graphics/c_Font.h
 	src/modules/graphics/c_Graphics.cpp
 	src/modules/graphics/c_Graphics.h
@@ -805,8 +811,10 @@ set(LOVE_SRC_MODULE_LOVE_C
 	src/modules/love_c/c_Object.h
 	# src/modules/love_c/c_Module.cpp
 	src/modules/love_c/c_Module.h
-	# src/modules/love_c/c_Data.cpp
+	src/modules/love_c/c_Data.cpp
 	src/modules/love_c/c_Data.h
+	src/modules/love_c/c_Matrix.cpp
+	src/modules/love_c/c_Matrix.h
 )
 
 source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})

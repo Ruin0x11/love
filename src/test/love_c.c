@@ -8,12 +8,12 @@
 
 #include "../modules/love_c/love_c.h"
 #include "../modules/love_c/c_Object.h"
+#include "../modules/love_c/c_Data.h"
+#include "../modules/love_c/c_Matrix.h"
 #include "../modules/filesystem/c_Filesystem.h"
 #include "../modules/window/c_Window.h"
 #include "../modules/graphics/c_Graphics.h"
-
-#define LOVE_C_TRUE (1)
-#define LOVE_C_FALSE (0)
+#include "../modules/font/c_Font.h"
 
 int init() {
   char* error = NULL;
@@ -108,7 +108,7 @@ int test_filesystem(char* argv0) {
   char* error = NULL;
 
   LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
-  printf("%x\n", filesystem);
+  printf("Filesystem: %x\n", filesystem);
 
   if (!love_filesystem_init(filesystem, argv0, &error)) {
     printf("Error love_filesystem_init: %s\n", error);
@@ -173,11 +173,11 @@ int test_filesystem(char* argv0) {
   love_filesystem_getWorkingDirectory(filesystem, &working);
   printf("Working directory: %s\n", working);
 
-  char **files = malloc(sizeof(char*)*20);
+  char **files = NULL;
   LoveC_Int64 size;
-  love_filesystem_getDirectoryItems(filesystem, "", &files, &size);
+  love_filesystem_getDirectoryItems(filesystem, "", &files);
 
-  for (LoveC_Int64 i = 0; i < size; i++) {
+  for (int i = 0; files[i]; i++) {
     printf("FILE: %s\n", files[i]);
   }
   free(files);
@@ -202,7 +202,7 @@ int test_window() {
 
   printf("Window isOpen: %d\n", love_window_isOpen(window));
 
-  love_window_showMessageBox(window, "Test Window", "spiral matai", MESSAGEBOX_INFO, LOVE_C_FALSE);
+  /* love_window_showMessageBox(window, "Test Window", "spiral matai", MESSAGEBOX_INFO, LOVE_C_FALSE); */
 
   return LOVE_C_TRUE;
 }
@@ -238,6 +238,70 @@ int test_graphics() {
     .b = 1.0,
     .a = 0.86,
   };
+
+  LoveC_Module_FontRef font = love_font_getInstance();
+  printf("Font: %x\n", font);
+
+  LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
+
+  LoveC_FileRef file = NULL;
+  if (!love_filesystem_newFile(filesystem, "MS-Gothic.ttf", MODE_READ, &file, &error)) {
+    printf("Error love_filesystem_newFile: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  LoveC_FileDataRef fileData = NULL;
+  if (!love_filesystem_File_read__FileData(file, -1, &fileData, &error)) {
+    printf("Error love_filesystem_read__FileData: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  printf("FileData size: %d\n", love_Data_getSize((LoveC_DataRef)fileData));
+
+  LoveC_Font_RasterizerRef rasterizer = NULL;
+  if (!love_font_newTrueTypeRasterizer(font, fileData, 30, 1.0, HINTING_NORMAL, &rasterizer, &error)) {
+    printf("Error love_font_newTrueTypeRasterizer: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  printf("Glyph count: %d\n", love_font_Rasterizer_getGlyphCount(rasterizer));
+
+  LoveC_Texture_Filter filter = {
+    .min = FILTER_LINEAR,
+    .mag = FILTER_LINEAR,
+    .mipmap = FILTER_NONE,
+    .anisotropy = 1.0f
+  };
+
+  LoveC_FontRef theFont = NULL;
+  if (!love_graphics_newFont(graphics, rasterizer, &filter, &theFont, &error)) {
+    printf("Error love_graphics_newFont: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  printf("Font: %x\n", theFont);
+  printf("Rasterizer height: %f\n", love_font_Rasterizer_getHeight(rasterizer));
+  printf("Font height: %f\n", love_graphics_Font_getHeight(theFont));
+
+  LoveC_Colorf colorText = {
+    .r = 0.0,
+    .g = 0.0,
+    .b = 0.0,
+    .a = 1.0,
+  };
+
+  LoveC_Font_ColoredString text = {
+    .str = strdup("But it's love."),
+    .color = colorText,
+  };
+
+  LoveC_Font_ColoredString texts[2];
+  texts[0] = text;
+  texts[1].str = NULL;
 
   int cellSize = 5;
   int cellDrawSize = cellSize - 1;
@@ -316,6 +380,16 @@ int test_graphics() {
           return LOVE_C_FALSE;
         }
       }
+    }
+
+    LoveC_Matrix4 pos;
+    love_Matrix4_setTranslation(&pos, 400, 300);
+
+    love_graphics_setColor(graphics, &colorText);
+    if (!love_graphics_print(graphics, texts, &theFont, &pos, &error)) {
+      printf("Error love_graphics_print: %s\n", error);
+      free(error);
+      return LOVE_C_FALSE;
     }
 
     if (!love_graphics_present(graphics, &error)) {
