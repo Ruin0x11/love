@@ -10,6 +10,7 @@ LOVE_C_EXTERN_C_BEGIN
 
 
 typedef int LoveC_Bool;
+typedef LoveC_Bool LoveC_Result; // same as bool, indicates exceptional function
 typedef int LoveC_OptionalBool; // 0 (false), 1 (true) or -1 (nil)
 typedef int LoveC_Int;
 typedef int LoveC_OptionalInt; // > 0 or -1 (nil)

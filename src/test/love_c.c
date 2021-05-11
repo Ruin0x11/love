@@ -10,10 +10,12 @@
 #include "../modules/love_c/c_Object.h"
 #include "../modules/love_c/c_Data.h"
 #include "../modules/love_c/c_Matrix.h"
+#include "../modules/love_c/c_Variant.h"
 #include "../modules/filesystem/c_Filesystem.h"
 #include "../modules/window/c_Window.h"
 #include "../modules/graphics/c_Graphics.h"
 #include "../modules/font/c_Font.h"
+#include "../modules/event/c_Event.h"
 
 int init() {
   char* error = NULL;
@@ -328,7 +330,27 @@ int test_graphics() {
     }
   }
 
-  for (i = 0; i < 1000; i++) {
+  i = 0;
+  while (1) {
+    if (!love_event_pump(&error)) {
+      printf("Error love_event_pump: %s\n", error);
+      free(error);
+      return LOVE_C_FALSE;
+    }
+
+    LoveC_Event_MessageRef ev;
+    if (love_event_poll(&ev)) {
+      const char* name = love_Event_Message_getName(ev);
+      if (strcmp(name, "quit") == 0) {
+        printf("Quitting\n");
+        goto quit;
+      }
+    }
+    if (i > 10) {
+      ev = love_Event_Message_construct("quit", NULL, 0);
+      love_event_push(ev);
+    }
+
     for (y = 0; y < cellsY; y++) {
       for (x = 0; x < cellsX; x++) {
         int neighborCount = 0;
@@ -397,8 +419,11 @@ int test_graphics() {
       free(error);
       return LOVE_C_FALSE;
     }
+
+    i++;
   }
 
+quit:
   free(colors);
   free(discards);
 

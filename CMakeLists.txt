@@ -418,6 +418,8 @@ source_group("modules\\data" FILES ${LOVE_SRC_MODULE_DATA})
 set(LOVE_SRC_MODULE_EVENT_ROOT
 	src/modules/event/Event.cpp
 	src/modules/event/Event.h
+	src/modules/event/c_Event.cpp
+	src/modules/event/c_Event.h
 	src/modules/event/wrap_Event.cpp
 	src/modules/event/wrap_Event.h
 )
@@ -817,6 +819,9 @@ set(LOVE_SRC_MODULE_LOVE_C
 	src/modules/love_c/c_Matrix.h
 	src/modules/love_c/c_Type.cpp
 	src/modules/love_c/c_Type.h
+	src/modules/love_c/c_Variant.cpp
+	src/modules/love_c/c_Variant.h
+	src/modules/love_c/c_Proxy.h
 )
 
 source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})

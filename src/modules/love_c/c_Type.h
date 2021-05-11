@@ -12,9 +12,9 @@ struct LoveC_TypeHandle;
 typedef struct LoveC_TypeHandle* LoveC_TypeRef;
 
 
-const char* love_Type_getName(const LoveC_TypeRef ref);
-LoveC_UInt32 love_Type_getId(const LoveC_TypeRef ref);
-LoveC_TypeRef love_Type_byName(const char *name);
+LOVE_EXPORT const char* love_Type_getName(const LoveC_TypeRef ref);
+LOVE_EXPORT LoveC_UInt32 love_Type_getId(const LoveC_TypeRef ref);
+LOVE_EXPORT LoveC_TypeRef love_Type_byName(const char *name);
 
 
 LOVE_C_EXTERN_C_END

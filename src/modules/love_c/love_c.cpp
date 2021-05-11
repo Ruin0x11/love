@@ -5,6 +5,7 @@
 #include "modules/window/c_Window.h"
 #include "modules/graphics/c_Graphics.h"
 #include "modules/font/c_Font.h"
+#include "modules/event/c_Event.h"
 
 #include "love_c.h"
 
@@ -22,6 +23,10 @@ LoveC_Bool love_c_init(char** error) {
   }
 
   if (!love_font_registerModule(error)) {
+    return false;
+  }
+
+  if (!love_event_registerModule(error)) {
     return false;
   }
 
