@@ -161,7 +161,7 @@ LoveC_Result love_data_hash(LoveC_Data_HashFunction_Function function, const cha
   HashFunction::Value hashvalue;
 
   try {
-    love::data::hash(function, rawbytes, rawsize, hashvalue);
+    love::data::hash(function_, rawbytes, rawsize, hashvalue);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -180,7 +180,7 @@ LoveC_Result love_data_hash__Data(LoveC_Data_HashFunction_Function function, Lov
   HashFunction::Value hashvalue;
 
   try {
-    love::data::hash(function, rawdata, hashvalue);
+    love::data::hash(function_, rawdata, hashvalue);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;

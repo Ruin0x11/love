@@ -24,7 +24,7 @@
 #endif
 
 #define LOVE_C_DEFINE_OPAQUE_TYPE(name) \
-struct name##Handle; \
-typedef struct name##Handle* name##Ref
+struct LoveC_##name##Handle; \
+typedef struct LoveC_##name##Handle* LoveC_##name##Ref
 
 #endif // LOVE_C_WRAP

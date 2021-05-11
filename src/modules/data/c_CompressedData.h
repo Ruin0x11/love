@@ -7,10 +7,7 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-
-struct LoveC_Data_CompressedDataHandle;
-typedef struct LoveC_Data_CompressedDataHandle* LoveC_Data_CompressedDataRef;
-
+LOVE_C_DEFINE_OPAQUE_TYPE(Data_CompressedData);
 
 LOVE_C_EXTERN_C_END
 

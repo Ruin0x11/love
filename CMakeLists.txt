@@ -397,6 +397,11 @@ set(LOVE_SRC_MODULE_DATA
 	src/modules/data/DataView.h
 	src/modules/data/HashFunction.cpp
 	src/modules/data/HashFunction.h
+	src/modules/data/c_ByteData.h
+	src/modules/data/c_CompressedData.h
+	src/modules/data/c_DataModule.cpp
+	src/modules/data/c_DataModule.h
+	src/modules/data/c_DataView.h
 	src/modules/data/wrap_ByteData.cpp
 	src/modules/data/wrap_ByteData.h
 	src/modules/data/wrap_CompressedData.cpp
@@ -1085,6 +1090,8 @@ source_group("modules\\thread\\sdl" FILES ${LOVE_SRC_MODULE_THREAD_SDL})
 set(LOVE_SRC_MODULE_TIMER
 	src/modules/timer/Timer.cpp
 	src/modules/timer/Timer.h
+	src/modules/timer/c_Timer.cpp
+	src/modules/timer/c_Timer.h
 	src/modules/timer/wrap_Timer.cpp
 	src/modules/timer/wrap_Timer.h
 )

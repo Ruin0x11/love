@@ -6,12 +6,11 @@
 #include "modules/love_c/types.h"
 
 #include "love_c/c_Data.h"
+#include "c_ByteData.h"
 #include "c_CompressedData.h"
+#include "c_DataView.h"
 
 LOVE_C_EXTERN_C_BEGIN
-
-LOVE_C_DEFINE_OPAQUE_TYPE(ByteData);
-LOVE_C_DEFINE_OPAQUE_TYPE(DataView);
 
 typedef enum LoveC_Data_EncodeFormat {
   ENCODE_BASE64,
