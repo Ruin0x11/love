@@ -23,4 +23,8 @@
 #define LOVE_C_EXTERN_C_END LOVE_C_STRICT_PROTOTYPES_END
 #endif
 
+#define LOVE_C_DEFINE_OPAQUE_TYPE(name) \
+struct name##Handle; \
+typedef struct name##Handle* name##Ref
+
 #endif // LOVE_C_WRAP

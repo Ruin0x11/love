@@ -4,6 +4,9 @@
 // C standard sized integer types.
 #include <stdint.h>
 
+// size_t.
+#include <stddef.h>
+
 #include "common/c_wrap.h"
 
 LOVE_C_EXTERN_C_BEGIN
@@ -15,6 +18,7 @@ typedef int LoveC_OptionalBool; // 0 (false), 1 (true) or -1 (nil)
 typedef int LoveC_Int;
 typedef int LoveC_OptionalInt; // > 0 or -1 (nil)
 typedef int64_t LoveC_Int64;
+typedef size_t LoveC_SizeT;
 typedef uint32_t LoveC_UInt32;
 typedef uint64_t LoveC_UInt64;
 
