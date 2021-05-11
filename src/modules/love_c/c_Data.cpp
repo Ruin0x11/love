@@ -1,9 +1,6 @@
 #include "c_Data.h"
 
 #include "common/c_wrap.h"
-#include "common/Module.h"
-#include "common/runtime.h"
-
 #include "runtime_c.h"
 
 #include "common/Data.h"

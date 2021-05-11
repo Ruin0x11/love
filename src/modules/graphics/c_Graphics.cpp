@@ -1009,7 +1009,6 @@ LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredSt
     return false;
   }
 
-
   for (; strs->str; strs++) {
     strs_.push_back(convertColoredString(strs));
   }

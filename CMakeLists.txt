@@ -815,6 +815,8 @@ set(LOVE_SRC_MODULE_LOVE_C
 	src/modules/love_c/c_Data.h
 	src/modules/love_c/c_Matrix.cpp
 	src/modules/love_c/c_Matrix.h
+	src/modules/love_c/c_Type.cpp
+	src/modules/love_c/c_Type.h
 )
 
 source_group("modules\\love_c" FILES ${LOVE_SRC_MODULE_LOVE_C})
