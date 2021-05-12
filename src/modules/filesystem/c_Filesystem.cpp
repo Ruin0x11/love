@@ -14,15 +14,12 @@
 using namespace love;
 using namespace love::filesystem;
 
+#define instance() (Module::getInstance<Filesystem>(Module::M_FILESYSTEM))
 
-LoveC_FilesystemRef love_filesystem_getInstance() {
-  auto inst = Module::getInstance<Filesystem>(Module::M_FILESYSTEM);
-  return wrap<LoveC_FilesystemRef>(inst);
-}
 
-LoveC_Bool love_filesystem_init(LoveC_FilesystemRef ref, const char* argv0, char** outError) {
+LoveC_Bool love_filesystem_init(const char* argv0, char** outError) {
   try {
-    unwrap<Filesystem>(ref)->init(argv0);
+    instance()->init(argv0);
   } catch (const std::exception &e) {
     *outError = strdup(e.what());
     return false;
@@ -31,214 +28,180 @@ LoveC_Bool love_filesystem_init(LoveC_FilesystemRef ref, const char* argv0, char
   return true;
 }
 
-void love_filesystem_setFused(LoveC_FilesystemRef ref, LoveC_Bool fused) {
-  unwrap<Filesystem>(ref)->setFused(fused);
+void love_filesystem_setFused(LoveC_Bool fused) {
+  instance()->setFused(fused);
 }
 
-LoveC_Bool love_filesystem_isFused(LoveC_FilesystemRef ref) {
-  return unwrap<Filesystem>(ref)->isFused();
+LoveC_Bool love_filesystem_isFused() {
+  return instance()->isFused();
 }
 
-void love_filesystem_setAndroidSaveExternal(LoveC_FilesystemRef ref, LoveC_Bool useExternal) {
-  unwrap<Filesystem>(ref)->setAndroidSaveExternal(useExternal);
+void love_filesystem_setAndroidSaveExternal(LoveC_Bool useExternal) {
+  instance()->setAndroidSaveExternal(useExternal);
 }
 
-LoveC_Bool love_filesystem_setIdentity(LoveC_FilesystemRef ref, const char* identity, LoveC_Bool append, char** outError) {
-  if (!unwrap<Filesystem>(ref)->setIdentity(identity, append)) {
-      *outError = strdup("Could not set write directory.");
-      return false;
+LoveC_Bool love_filesystem_setIdentity(const char* identity, LoveC_Bool append, char** outError) {
+  if (!instance()->setIdentity(identity, append)) {
+    *outError = strdup("Could not set write directory.");
+    return false;
   }
   return true;
 }
 
-void love_filesystem_getIdentity(LoveC_FilesystemRef ref, const char** outIdentity) {
-  auto filesystem = unwrap<Filesystem>(ref);
-  *outIdentity = strdup(filesystem->getIdentity());
+void love_filesystem_getIdentity(const char** outIdentity) {
+  *outIdentity = strdup(instance()->getIdentity());
 }
 
-LoveC_Bool love_filesystem_setSource(LoveC_FilesystemRef ref, const char* source, char** outError) {
-  if (!unwrap<Filesystem>(ref)->setSource(source)) {
-      *outError = strdup("Could not set source.");
-      return false;
+LoveC_Bool love_filesystem_setSource(const char* source, char** outError) {
+  if (!instance()->setSource(source)) {
+    *outError = strdup("Could not set source.");
+    return false;
   }
   return true;
 }
 
-void love_filesystem_getSource(LoveC_FilesystemRef ref, const char** outSource) {
-  auto filesystem = unwrap<Filesystem>(ref);
-  *outSource = strdup(filesystem->getSource());
+void love_filesystem_getSource(const char** outSource) {
+  *outSource = strdup(instance()->getSource());
 }
 
-LoveC_Bool love_filesystem_mount__string(LoveC_FilesystemRef ref, const char* archive, const char* mountpoint, LoveC_Bool append) {
-  auto filesystem = unwrap<Filesystem>(ref);
-  return filesystem->mount(archive, mountpoint, append);
+LoveC_Bool love_filesystem_mount__string(const char* archive, const char* mountpoint, LoveC_Bool append) {
+  return instance()->mount(archive, mountpoint, append);
 }
 
-LoveC_Bool love_filesystem_unmount__string(LoveC_FilesystemRef ref, const char* archive) {
-  auto filesystem = unwrap<Filesystem>(ref);
-  return filesystem->unmount(archive);
+LoveC_Bool love_filesystem_unmount__string(const char* archive) {
+  return instance()->unmount(archive);
 }
 
-LoveC_Bool love_filesystem_newFile(LoveC_FilesystemRef ref, const char* filename, LoveC_File_Mode mode, LoveC_FileRef *outFile, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
-    auto filesystem_mode = static_cast<File::Mode>(mode);
+LoveC_Bool love_filesystem_newFile(const char* filename, LoveC_File_Mode mode, LoveC_FileRef *outFile, char** outError) {
+  auto filesystem_mode = static_cast<File::Mode>(mode);
 
-	File *t = filesystem->newFile(filename);
+  File *t = instance()->newFile(filename);
 
-	if (filesystem_mode != File::MODE_CLOSED)
-	{
-		try
-		{
-			if (!t->open(filesystem_mode))
-				throw love::Exception("Could not open file.");
-		}
-		catch (love::Exception &e)
-		{
-            *outError = strdup(e.what());
-            return false;
-		}
-	}
-
-    *outFile = wrap<LoveC_FileRef>(t);
-	return true;
-}
-
-LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-	size_t length = strlen(data);
-	FileData *t = nullptr;
-
-    try {
-      t = filesystem->newFileData(data, length, filename);
-    } catch(const std::exception& e) {
-      *outError = strdup(e.what());
-      return false;
+  if (filesystem_mode != File::MODE_CLOSED)
+    {
+      try
+        {
+          if (!t->open(filesystem_mode))
+            throw love::Exception("Could not open file.");
+        }
+      catch (love::Exception &e)
+        {
+          *outError = strdup(e.what());
+          return false;
+        }
     }
 
-    *outFileData = wrap<LoveC_FileDataRef>(t);
+  *outFile = wrap<LoveC_FileRef>(t);
+  return true;
+}
+
+LoveC_Bool love_filesystem_newFileData__string(const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError) {
+  size_t length = strlen(data);
+  FileData *t = nullptr;
+
+  try {
+    t = instance()->newFileData(data, length, filename);
+  } catch(const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
+
+  *outFileData = wrap<LoveC_FileDataRef>(t);
+  return true;
+}
+
+void love_filesystem_getWorkingDirectory(const char** outWorkingDirectory) {
+  *outWorkingDirectory = instance()->getWorkingDirectory();
+}
+
+void love_filesystem_getUserDirectory(char** outUserDirectory) {
+  *outUserDirectory = strdup(instance()->getUserDirectory().c_str());
+}
+
+void love_filesystem_getAppdataDirectory(char** outAppdataDirectory) {
+  *outAppdataDirectory = strdup(instance()->getAppdataDirectory().c_str());
+}
+
+void love_filesystem_getSaveDirectory(const char** outSaveDirectory) {
+  *outSaveDirectory = instance()->getSaveDirectory();
+}
+
+void love_filesystem_getSourceBaseDirectory(char** outSourceBaseDirectory) {
+  *outSourceBaseDirectory = strdup(instance()->getSourceBaseDirectory().c_str());
+}
+
+LoveC_Bool love_filesystem_getRealDirectory(const char* filename, char** outRealDirectory, char** outError) {
+  try {
+    *outRealDirectory = strdup(instance()->getRealDirectory(filename).c_str());
     return true;
+  } catch(const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
 }
 
-void love_filesystem_getWorkingDirectory(LoveC_FilesystemRef ref, const char** outWorkingDirectory) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    *outWorkingDirectory = filesystem->getWorkingDirectory();
+void love_filesystem_getExecutablePath(char** outExecutablePath) {
+  *outExecutablePath = strdup(instance()->getExecutablePath().c_str());
 }
 
-void love_filesystem_getUserDirectory(LoveC_FilesystemRef ref, char** outUserDirectory) {
-    auto filesystem = unwrap<Filesystem>(ref);
+LoveC_Bool love_filesystem_getInfo(const char* filepath, LoveC_Filesystem_InfoStruct* outInfo) {
+  Filesystem::Info info = {};
 
-    *outUserDirectory = strdup(filesystem->getUserDirectory().c_str());
+  if (!instance()->getInfo(filepath, info)) {
+    return false;
+  }
+
+  outInfo->size = info.size;
+  outInfo->modtime = info.modtime;
+  outInfo->type = static_cast<LoveC_Filesystem_FileType>(info.type);
+  return true;
 }
 
-void love_filesystem_getAppdataDirectory(LoveC_FilesystemRef ref, char** outAppdataDirectory) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    *outAppdataDirectory = strdup(filesystem->getAppdataDirectory().c_str());
+LoveC_Bool love_filesystem_createDirectory(const char* filepath) {
+  return instance()->createDirectory(filepath);
 }
 
-void love_filesystem_getSaveDirectory(LoveC_FilesystemRef ref, const char** outSaveDirectory) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    *outSaveDirectory = filesystem->getSaveDirectory();
+LoveC_Bool love_filesystem_remove(const char* filepath) {
+  return instance()->remove(filepath);
 }
 
-void love_filesystem_getSourceBaseDirectory(LoveC_FilesystemRef ref, char** outSourceBaseDirectory) {
-    auto filesystem = unwrap<Filesystem>(ref);
+LoveC_Bool love_filesystem_read(const char* filename, LoveC_Int64 size, LoveC_FileDataRef *outFileData, char** outError) {
+  try {
+    *outFileData = wrap<LoveC_FileDataRef>(instance()->read(filename, size));
+  } catch(const std::exception& e){
+    *outError = strdup(e.what());
+    return false;
+  }
 
-    *outSourceBaseDirectory = strdup(filesystem->getSourceBaseDirectory().c_str());
+  return true;
 }
 
-LoveC_Bool love_filesystem_getRealDirectory(LoveC_FilesystemRef ref, const char* filename, char** outRealDirectory, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
+LoveC_Bool love_filesystem_write(const char* filename, const void* data, LoveC_Int64 size, char** outError) {
+  try {
+    instance()->write(filename, data, size);
+  } catch(const std::exception& e){
+    *outError = strdup(e.what());
+    return false;
+  }
 
-    try {
-      *outRealDirectory = strdup(filesystem->getRealDirectory(filename).c_str());
-      return true;
-    } catch(const std::exception& e) {
-      *outError = strdup(e.what());
-      return false;
-    }
+  return true;
 }
 
-void love_filesystem_getExecutablePath(LoveC_FilesystemRef ref, char** outExecutablePath) {
-    auto filesystem = unwrap<Filesystem>(ref);
+LoveC_Bool love_filesystem_append(const char* filename, const void* data, LoveC_Int64 size, char** outError) {
+  try {
+    instance()->append(filename, data, size);
+  } catch(const std::exception& e){
+    *outError = strdup(e.what());
+    return false;
+  }
 
-    *outExecutablePath = strdup(filesystem->getExecutablePath().c_str());
+  return true;
 }
 
-LoveC_Bool love_filesystem_getInfo(LoveC_FilesystemRef ref, const char* filepath, LoveC_Filesystem_InfoStruct* outInfo) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-	Filesystem::Info info = {};
-
-    if (!filesystem->getInfo(filepath, info)) {
-      return false;
-    }
-
-    outInfo->size = info.size;
-    outInfo->modtime = info.modtime;
-    outInfo->type = static_cast<LoveC_Filesystem_FileType>(info.type);
-    return true;
-}
-
-LoveC_Bool love_filesystem_createDirectory(LoveC_FilesystemRef ref, const char* filepath) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    return filesystem->createDirectory(filepath);
-}
-
-LoveC_Bool love_filesystem_remove(LoveC_FilesystemRef ref, const char* filepath) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    return filesystem->remove(filepath);
-}
-
-LoveC_Bool love_filesystem_read(LoveC_FilesystemRef ref, const char* filename, LoveC_Int64 size, LoveC_FileDataRef *outFileData, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    try {
-      *outFileData = wrap<LoveC_FileDataRef>(filesystem->read(filename, size));
-    } catch(const std::exception& e){
-      *outError = strdup(e.what());
-      return false;
-    }
-
-    return true;
-}
-
-LoveC_Bool love_filesystem_write(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    try {
-      filesystem->write(filename, data, size);
-    } catch(const std::exception& e){
-      *outError = strdup(e.what());
-      return false;
-    }
-
-    return true;
-}
-
-LoveC_Bool love_filesystem_append(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    try {
-      filesystem->append(filename, data, size);
-    } catch(const std::exception& e){
-      *outError = strdup(e.what());
-      return false;
-    }
-
-    return true;
-}
-
-LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems) {
-  auto filesystem = unwrap<Filesystem>(ref);
+LoveC_Bool love_filesystem_getDirectoryItems(const char* dir, char*** outItems) {
   std::vector<std::string> items;
 
-  filesystem->getDirectoryItems(dir, items);
+  instance()->getDirectoryItems(dir, items);
 
   *outItems = (char**)malloc(sizeof(char*)*(items.size()+1));
 
@@ -251,21 +214,17 @@ LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char
   return true;
 }
 
-void love_filesystem_setSymlinksEnabled(LoveC_FilesystemRef ref, LoveC_Bool enable) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    filesystem->setSymlinksEnabled(enable);
+void love_filesystem_setSymlinksEnabled(LoveC_Bool enable) {
+  instance()->setSymlinksEnabled(enable);
 }
 
-LoveC_Bool love_filesystem_areSymlinksEnabled(LoveC_FilesystemRef ref) {
-    auto filesystem = unwrap<Filesystem>(ref);
-
-    return filesystem->areSymlinksEnabled();
+LoveC_Bool love_filesystem_areSymlinksEnabled() {
+  return instance()->areSymlinksEnabled();
 }
 
 
 LoveC_Bool love_filesystem_registerModule(char** outError) {
-  Filesystem *instance = Module::getInstance<Filesystem>(Module::M_FILESYSTEM);
+  Filesystem *instance = instance();
   if (instance == nullptr) {
     try {
       instance = new physfs::Filesystem();

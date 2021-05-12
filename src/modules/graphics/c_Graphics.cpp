@@ -15,20 +15,14 @@
 using namespace love;
 using namespace love::graphics;
 
+#define instance() (Module::getInstance<Graphics>(Module::M_GRAPHICS))
 
-LoveC_GraphicsRef love_graphics_getInstance() {
-  auto inst = Module::getInstance<Graphics>(Module::M_GRAPHICS);
-  return wrap<LoveC_GraphicsRef>(inst);
+
+void love_graphics_reset() {
+  instance()->reset();
 }
 
-
-void love_graphics_reset(LoveC_GraphicsRef ref) {
-  unwrap<Graphics>(ref)->reset();
-}
-
-LoveC_Bool love_graphics_clear(LoveC_GraphicsRef ref, const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_clear(const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError) {
   OptionalColorf color(Colorf(0.0f, 0.0f, 0.0f, 0.0f));
   std::vector<OptionalColorf> colors_;
 
@@ -58,9 +52,9 @@ LoveC_Bool love_graphics_clear(LoveC_GraphicsRef ref, const LoveC_Colorf** color
 
   try {
     if (colors_.empty()) {
-      graphics->clear(color, stencil, depth);
+      instance()->clear(color, stencil, depth);
     } else {
-      graphics->clear(colors_, stencil, depth);
+      instance()->clear(colors_, stencil, depth);
     }
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
@@ -70,8 +64,7 @@ LoveC_Bool love_graphics_clear(LoveC_GraphicsRef ref, const LoveC_Colorf** color
   return true;
 }
 
-void love_graphics_discard(LoveC_GraphicsRef ref, LoveC_Bool* colorbuffers, LoveC_Bool depthstencil) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_discard(LoveC_Bool* colorbuffers, LoveC_Bool depthstencil) {
   std::vector<bool> colorbuffers_;
 
   if (colorbuffers != nullptr) {
@@ -81,15 +74,13 @@ void love_graphics_discard(LoveC_GraphicsRef ref, LoveC_Bool* colorbuffers, Love
     }
   }
 
-  graphics->discard(colorbuffers_, depthstencil);
+  instance()->discard(colorbuffers_, depthstencil);
 }
 
-LoveC_Bool love_graphics_present(LoveC_GraphicsRef ref, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_present(char** outError) {
   try {
     // TODO screenshot callbacks
-    graphics->present(nullptr);
+    instance()->present(nullptr);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -98,36 +89,36 @@ LoveC_Bool love_graphics_present(LoveC_GraphicsRef ref, char** outError) {
   return true;
 }
 
-LoveC_Bool love_graphics_isCreated(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->isCreated();
+LoveC_Bool love_graphics_isCreated() {
+  return instance()->isCreated();
 }
 
-LoveC_Bool love_graphics_isActive(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->isActive();
+LoveC_Bool love_graphics_isActive() {
+  return instance()->isActive();
 }
 
 LoveC_Bool love_graphics_isGammaCorrect() {
   return graphics::isGammaCorrect();
 }
 
-int love_graphics_getWidth(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getWidth();
+int love_graphics_getWidth() {
+  return instance()->getWidth();
 }
 
-int love_graphics_getHeight(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getHeight();
+int love_graphics_getHeight() {
+  return instance()->getHeight();
 }
 
-int love_graphics_getPixelWidth(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getPixelWidth();
+int love_graphics_getPixelWidth() {
+  return instance()->getPixelWidth();
 }
 
-int love_graphics_getPixelHeight(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getPixelHeight();
+int love_graphics_getPixelHeight() {
+  return instance()->getPixelHeight();
 }
 
-float love_graphics_getDPIScale(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getScreenDPIScale();
+float love_graphics_getDPIScale() {
+  return instance()->getScreenDPIScale();
 }
 
 Graphics::RenderTarget convertRenderTarget(LoveC_Graphics_RenderTarget* target) {
@@ -141,9 +132,7 @@ Graphics::RenderTarget convertRenderTarget(LoveC_Graphics_RenderTarget* target) 
   return std::move(temp);
 }
 
-LoveC_Bool love_graphics_setCanvas(LoveC_GraphicsRef ref, LoveC_Graphics_RenderTargets *targetsOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_setCanvas(LoveC_Graphics_RenderTargets *targetsOpt, char** outError) {
   Graphics::RenderTargets targets;
 
   if (targetsOpt != nullptr) {
@@ -159,9 +148,9 @@ LoveC_Bool love_graphics_setCanvas(LoveC_GraphicsRef ref, LoveC_Graphics_RenderT
 
   try {
     if (targets.getFirstTarget().canvas != nullptr)
-      graphics->setCanvas(targets);
+      instance()->setCanvas(targets);
     else
-      graphics->setCanvas();
+      instance()->setCanvas();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -170,10 +159,8 @@ LoveC_Bool love_graphics_setCanvas(LoveC_GraphicsRef ref, LoveC_Graphics_RenderT
   return true;
 }
 
-void love_graphics_getCanvas(LoveC_GraphicsRef ref, LoveC_Graphics_RenderTargets *outTargets) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Graphics::RenderTargets targets = graphics->getCanvas();
+void love_graphics_getCanvas(LoveC_Graphics_RenderTargets *outTargets) {
+  Graphics::RenderTargets targets = instance()->getCanvas();
 
   for (int i = 0; i < (int) targets.colors.size(); i++) {
     auto color = targets.colors[i];
@@ -190,43 +177,37 @@ void love_graphics_getCanvas(LoveC_GraphicsRef ref, LoveC_Graphics_RenderTargets
   outTargets->temporaryRTFlags = targets.temporaryRTFlags;
 }
 
-void love_graphics_setScissor(LoveC_GraphicsRef ref, const LoveC_Rect* rect) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_setScissor(const LoveC_Rect* rect) {
   auto rect_ = unwrap<const Rect>(rect);
 
-  graphics->setScissor(*rect_);
+  instance()->setScissor(*rect_);
 }
 
-void love_graphics_setScissor__clear(LoveC_GraphicsRef ref) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  graphics->setScissor();
+void love_graphics_setScissor__clear() {
+  instance()->setScissor();
 }
 
-void love_graphics_intersectScissor(LoveC_GraphicsRef ref, const LoveC_Rect* rect) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_intersectScissor(const LoveC_Rect* rect) {
   auto rect_ = unwrap<const Rect>(rect);
 
-  graphics->intersectScissor(*rect_);
+  instance()->intersectScissor(*rect_);
 }
 
-LoveC_Bool love_graphics_getScissor(LoveC_GraphicsRef ref, LoveC_Rect* outRect) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_getScissor(LoveC_Rect* outRect) {
   auto outRect_ = unwrap<Rect>(outRect);
 
   Rect rect;
-  if (!graphics->getScissor(*outRect_))
+  if (!instance()->getScissor(*outRect_))
     return false;
 
   return true;
 }
 
-LoveC_Bool love_graphics_drawToStencilBuffer(LoveC_GraphicsRef ref, LoveC_Graphics_StencilAction action, int stencilvalue, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_drawToStencilBuffer(LoveC_Graphics_StencilAction action, int stencilvalue, char** outError) {
   auto action_ = static_cast<StencilAction>(action);
 
   try {
-    graphics->drawToStencilBuffer(action_, stencilvalue);
+    instance()->drawToStencilBuffer(action_, stencilvalue);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -235,12 +216,11 @@ LoveC_Bool love_graphics_drawToStencilBuffer(LoveC_GraphicsRef ref, LoveC_Graphi
   return true;
 }
 
-LoveC_Bool love_graphics_stopDrawToStencilBuffer(LoveC_GraphicsRef ref, LoveC_Graphics_StencilAction action, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_stopDrawToStencilBuffer(LoveC_Graphics_StencilAction action, char** outError) {
   auto action_ = static_cast<StencilAction>(action);
 
   try {
-    graphics->stopDrawToStencilBuffer();
+    instance()->stopDrawToStencilBuffer();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -249,12 +229,11 @@ LoveC_Bool love_graphics_stopDrawToStencilBuffer(LoveC_GraphicsRef ref, LoveC_Gr
   return true;
 }
 
-LoveC_Bool love_graphics_setStencilTest(LoveC_GraphicsRef ref, LoveC_Graphics_CompareMode mode, int comparevalue, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_setStencilTest(LoveC_Graphics_CompareMode mode, int comparevalue, char** outError) {
   auto mode_ = static_cast<CompareMode>(mode);
 
   try {
-    graphics->setStencilTest(mode_, comparevalue);
+    instance()->setStencilTest(mode_, comparevalue);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -263,20 +242,16 @@ LoveC_Bool love_graphics_setStencilTest(LoveC_GraphicsRef ref, LoveC_Graphics_Co
   return true;
 }
 
-void love_graphics_getStencilTest(LoveC_GraphicsRef ref, LoveC_Graphics_CompareMode* outMode, int* outComparevalue) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_getStencilTest(LoveC_Graphics_CompareMode* outMode, int* outComparevalue) {
   CompareMode compare = CompareMode::COMPARE_ALWAYS;
   int comparevalue = 1;
-  graphics->getStencilTest(compare, comparevalue);
+  instance()->getStencilTest(compare, comparevalue);
 
   *outMode = static_cast<LoveC_Graphics_CompareMode>(compare);
   *outComparevalue = comparevalue;
 }
 
-LoveC_Bool love_graphics_newImage(LoveC_GraphicsRef ref, LoveC_Texture_TextureType type, LoveC_Image_Settings* settingsOpt, LoveC_ImageRef* outImage, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_newImage(LoveC_Texture_TextureType type, LoveC_Image_Settings* settingsOpt, LoveC_ImageRef* outImage, char** outError) {
   Image::Slices slices(static_cast<TextureType>(type));
   Image::Settings settings_;
 
@@ -289,7 +264,7 @@ LoveC_Bool love_graphics_newImage(LoveC_GraphicsRef ref, LoveC_Texture_TextureTy
   Image* t = nullptr;
 
   try {
-    t = graphics->newImage(slices, settings_);
+    t = instance()->newImage(slices, settings_);
   } catch (const std::exception& e) {
     slices.clear();
     *outError = strdup(e.what());
@@ -301,17 +276,15 @@ LoveC_Bool love_graphics_newImage(LoveC_GraphicsRef ref, LoveC_Texture_TextureTy
   return true;
 }
 
-LoveC_QuadRef love_graphics_newQuad(LoveC_GraphicsRef ref, const LoveC_Quad_Viewport* v, double sw, double sh) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_QuadRef love_graphics_newQuad(const LoveC_Quad_Viewport* v, double sw, double sh) {
   auto v_ = unwrap<const Quad::Viewport>(v);
 
-  Quad* quad = graphics->newQuad(*v_, sw, sh);
+  Quad* quad = instance()->newQuad(*v_, sw, sh);
 
   return wrap<LoveC_QuadRef>(quad);
 }
 
-LoveC_Bool love_graphics_newFont(LoveC_GraphicsRef ref, LoveC_Font_RasterizerRef rasterizer, LoveC_Texture_Filter* filter, LoveC_FontRef* outFont, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_newFont(LoveC_Font_RasterizerRef rasterizer, LoveC_Texture_Filter* filter, LoveC_FontRef* outFont, char** outError) {
   auto rasterizer_ = unwrap<font::Rasterizer>(rasterizer);
 
   Texture::Filter filter_;
@@ -323,7 +296,7 @@ LoveC_Bool love_graphics_newFont(LoveC_GraphicsRef ref, LoveC_Font_RasterizerRef
   Font* t;
 
   try {
-    t = graphics->newFont(rasterizer_, filter_);
+    t = instance()->newFont(rasterizer_, filter_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -334,16 +307,14 @@ LoveC_Bool love_graphics_newFont(LoveC_GraphicsRef ref, LoveC_Font_RasterizerRef
   return true;
 }
 
-LoveC_Bool love_graphics_newSpriteBatch(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int size, LoveC_Graphics_Vertex_Usage usage, LoveC_SpriteBatchRef* outSpriteBatch, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_newSpriteBatch(LoveC_TextureRef texture, int size, LoveC_Graphics_Vertex_Usage usage, LoveC_SpriteBatchRef* outSpriteBatch, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
   auto usage_ = static_cast<vertex::Usage>(usage);
 
   SpriteBatch* t = nullptr;
 
   try {
-    t = graphics->newSpriteBatch(texture_, size, usage_);
+    t = instance()->newSpriteBatch(texture_, size, usage_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -354,8 +325,7 @@ LoveC_Bool love_graphics_newSpriteBatch(LoveC_GraphicsRef ref, LoveC_TextureRef 
   return true;
 }
 
-LoveC_Bool love_graphics_newParticleSystem(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int size, LoveC_ParticleSystemRef* outParticleSystem, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_newParticleSystem(LoveC_TextureRef texture, int size, LoveC_ParticleSystemRef* outParticleSystem, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
 
   if (size < 1 || size > ParticleSystem::MAX_PARTICLES) {
@@ -366,7 +336,7 @@ LoveC_Bool love_graphics_newParticleSystem(LoveC_GraphicsRef ref, LoveC_TextureR
   ParticleSystem* t = nullptr;
 
   try {
-    t = graphics->newParticleSystem(texture_, size);
+    t = instance()->newParticleSystem(texture_, size);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -377,9 +347,7 @@ LoveC_Bool love_graphics_newParticleSystem(LoveC_GraphicsRef ref, LoveC_TextureR
   return true;
 }
 
-LOVE_EXPORT LoveC_Bool love_graphics_newCanvas(LoveC_GraphicsRef ref, const LoveC_Canvas_Settings* settingsOpt, LoveC_CanvasRef* outCanvas, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LOVE_EXPORT LoveC_Bool love_graphics_newCanvas(const LoveC_Canvas_Settings* settingsOpt, LoveC_CanvasRef* outCanvas, char** outError) {
   Canvas::Settings settings;
 
   if (settingsOpt) {
@@ -402,7 +370,7 @@ LOVE_EXPORT LoveC_Bool love_graphics_newCanvas(LoveC_GraphicsRef ref, const Love
   Canvas *canvas = nullptr;
 
   try {
-    canvas = graphics->newCanvas(settings);
+    canvas = instance()->newCanvas(settings);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -413,16 +381,14 @@ LOVE_EXPORT LoveC_Bool love_graphics_newCanvas(LoveC_GraphicsRef ref, const Love
   return true;
 }
 
-LoveC_Bool love_graphics_newShader(LoveC_GraphicsRef ref, const char* vertexsource, const char* pixelsource, LoveC_ShaderRef* outShader, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_newShader(const char* vertexsource, const char* pixelsource, LoveC_ShaderRef* outShader, char** outError) {
   std::string vertexsource_(vertexsource);
   std::string pixelsource_(pixelsource);
 
   Shader* t = nullptr;
 
   try {
-    t = graphics->newShader(vertexsource_, pixelsource_);
+    t = instance()->newShader(vertexsource_, pixelsource_);
   } catch(std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -433,9 +399,7 @@ LoveC_Bool love_graphics_newShader(LoveC_GraphicsRef ref, const char* vertexsour
   return true;
 }
 
-LoveC_Bool love_graphics_validateShader(LoveC_GraphicsRef ref, LoveC_Bool gles, const char* vertexsource, const char* pixelsource, char** outShaderError, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_validateShader(LoveC_Bool gles, const char* vertexsource, const char* pixelsource, char** outShaderError, char** outError) {
   std::string vertexsource_(vertexsource);
   std::string pixelsource_(pixelsource);
 
@@ -443,7 +407,7 @@ LoveC_Bool love_graphics_validateShader(LoveC_GraphicsRef ref, LoveC_Bool gles, 
   bool success = false;
 
   try {
-    success = graphics->validateShader(gles, vertexsource_, pixelsource_, err);
+    success = instance()->validateShader(gles, vertexsource_, pixelsource_, err);
   } catch(std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -456,9 +420,7 @@ LoveC_Bool love_graphics_validateShader(LoveC_GraphicsRef ref, LoveC_Bool gles, 
   return success;
 }
 
-LoveC_Bool love_graphics_newMesh__standard(LoveC_GraphicsRef ref, LoveC_Vertex** vertices, LoveC_Graphics_PrimitiveType drawmode, LoveC_Graphics_Vertex_Usage usage, LoveC_MeshRef* outMesh, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_newMesh__standard(LoveC_Vertex** vertices, LoveC_Graphics_PrimitiveType drawmode, LoveC_Graphics_Vertex_Usage usage, LoveC_MeshRef* outMesh, char** outError) {
   auto drawmode_ = static_cast<PrimitiveType>(drawmode);
   auto usage_ = static_cast<vertex::Usage>(usage);
 
@@ -483,7 +445,7 @@ LoveC_Bool love_graphics_newMesh__standard(LoveC_GraphicsRef ref, LoveC_Vertex**
   Mesh* t;
 
   try {
-    t = graphics->newMesh(vertices_, drawmode_, usage_);
+    t = instance()->newMesh(vertices_, drawmode_, usage_);
   } catch(const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -494,16 +456,14 @@ LoveC_Bool love_graphics_newMesh__standard(LoveC_GraphicsRef ref, LoveC_Vertex**
   return true;
 }
 
-LoveC_Bool love_graphics_newMesh__standard_count(LoveC_GraphicsRef ref, int count, LoveC_Graphics_PrimitiveType drawmode, LoveC_Graphics_Vertex_Usage usage, LoveC_MeshRef* outMesh, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_newMesh__standard_count(int count, LoveC_Graphics_PrimitiveType drawmode, LoveC_Graphics_Vertex_Usage usage, LoveC_MeshRef* outMesh, char** outError) {
   auto drawmode_ = static_cast<PrimitiveType>(drawmode);
   auto usage_ = static_cast<vertex::Usage>(usage);
 
   Mesh* t = nullptr;
 
   try {
-    t = graphics->newMesh(count, drawmode_, usage_);
+    t = instance()->newMesh(count, drawmode_, usage_);
   } catch(const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -514,9 +474,7 @@ LoveC_Bool love_graphics_newMesh__standard_count(LoveC_GraphicsRef ref, int coun
   return true;
 }
 
-void love_graphics_setColor(LoveC_GraphicsRef ref, const LoveC_Colorf* color) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_setColor(const LoveC_Colorf* color) {
   Colorf c;
 
   c.r = color->r;
@@ -524,13 +482,11 @@ void love_graphics_setColor(LoveC_GraphicsRef ref, const LoveC_Colorf* color) {
   c.b = color->b;
   c.a = color->a;
 
-  graphics->setColor(c);
+  instance()->setColor(c);
 }
 
-void love_graphics_getColor(LoveC_GraphicsRef ref, LoveC_Colorf* outColor) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Colorf c = graphics->getColor();
+void love_graphics_getColor(LoveC_Colorf* outColor) {
+  Colorf c = instance()->getColor();
 
   outColor->r = c.r;
   outColor->g = c.g;
@@ -538,9 +494,7 @@ void love_graphics_getColor(LoveC_GraphicsRef ref, LoveC_Colorf* outColor) {
   outColor->a = c.a;
 }
 
-void love_graphics_setBackgroundColor(LoveC_GraphicsRef ref, const LoveC_Colorf* color) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_setBackgroundColor(const LoveC_Colorf* color) {
   Colorf c;
 
   c.r = color->r;
@@ -548,13 +502,11 @@ void love_graphics_setBackgroundColor(LoveC_GraphicsRef ref, const LoveC_Colorf*
   c.b = color->b;
   c.a = color->a;
 
-  graphics->setBackgroundColor(c);
+  instance()->setBackgroundColor(c);
 }
 
-void love_graphics_getBackgroundColor(LoveC_GraphicsRef ref, LoveC_Colorf* outColor) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Colorf c = graphics->getBackgroundColor();
+void love_graphics_getBackgroundColor(LoveC_Colorf* outColor) {
+  Colorf c = instance()->getBackgroundColor();
 
   outColor->r = c.r;
   outColor->g = c.g;
@@ -562,20 +514,17 @@ void love_graphics_getBackgroundColor(LoveC_GraphicsRef ref, LoveC_Colorf* outCo
   outColor->a = c.a;
 }
 
-void love_graphics_setFont(LoveC_GraphicsRef ref, LoveC_FontRef* fontOpt) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_setFont(LoveC_FontRef* fontOpt) {
   auto fontOpt_ = unwrap<Font>(fontOpt);
 
-  graphics->setFont(fontOpt_);
+  instance()->setFont(fontOpt_);
 }
 
-LoveC_Bool love_graphics_getFont(LoveC_GraphicsRef ref, LoveC_FontRef* outFont, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_getFont(LoveC_FontRef* outFont, char** outError) {
   Font* t = nullptr;
 
   try {
-    t = graphics->getFont();
+    t = instance()->getFont();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -586,30 +535,26 @@ LoveC_Bool love_graphics_getFont(LoveC_GraphicsRef ref, LoveC_FontRef* outFont, 
   return true;
 }
 
-void love_graphics_setColorMask(LoveC_GraphicsRef ref, const LoveC_Graphics_ColorMask* mask) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_setColorMask(const LoveC_Graphics_ColorMask* mask) {
   auto mask_ = unwrap<const Graphics::ColorMask>(mask);
 
-  graphics->setColorMask(*mask_);
+  instance()->setColorMask(*mask_);
 }
 
-void love_graphics_getColorMask(LoveC_GraphicsRef ref, LoveC_Graphics_ColorMask* outMask) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Graphics::ColorMask mask = graphics->getColorMask();
+void love_graphics_getColorMask(LoveC_Graphics_ColorMask* outMask) {
+  Graphics::ColorMask mask = instance()->getColorMask();
   outMask->r = mask.r;
   outMask->g = mask.g;
   outMask->b = mask.b;
   outMask->a = mask.a;
 }
 
-LoveC_Bool love_graphics_setBlendMode(LoveC_GraphicsRef ref, LoveC_Graphics_BlendMode mode, LoveC_Graphics_BlendAlpha alphamode, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_setBlendMode(LoveC_Graphics_BlendMode mode, LoveC_Graphics_BlendAlpha alphamode, char** outError) {
   auto mode_ = static_cast<Graphics::BlendMode>(mode);
   auto alphamode_ = static_cast<Graphics::BlendAlpha>(alphamode);
 
   try {
-    graphics->setBlendMode(mode_, alphamode_);
+    instance()->setBlendMode(mode_, alphamode_);
   } catch (std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -618,19 +563,15 @@ LoveC_Bool love_graphics_setBlendMode(LoveC_GraphicsRef ref, LoveC_Graphics_Blen
   return true;
 }
 
-void love_graphics_getBlendMode(LoveC_GraphicsRef ref, LoveC_Graphics_BlendMode* outMode, LoveC_Graphics_BlendAlpha* outAlphamode) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_getBlendMode(LoveC_Graphics_BlendMode* outMode, LoveC_Graphics_BlendAlpha* outAlphamode) {
   Graphics::BlendAlpha alphamode;
-  Graphics::BlendMode mode = graphics->getBlendMode(alphamode);
+  Graphics::BlendMode mode = instance()->getBlendMode(alphamode);
 
   *outMode = static_cast<LoveC_Graphics_BlendMode>(mode);
   *outAlphamode = static_cast<LoveC_Graphics_BlendAlpha>(alphamode);
 }
 
-void love_graphics_setDefaultFilter(LoveC_GraphicsRef ref, const LoveC_Texture_Filter* filter) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_setDefaultFilter(const LoveC_Texture_Filter* filter) {
   Texture::Filter f;
 
   f.min = static_cast<Texture::FilterMode>(filter->min);
@@ -638,13 +579,11 @@ void love_graphics_setDefaultFilter(LoveC_GraphicsRef ref, const LoveC_Texture_F
   f.mipmap = static_cast<Texture::FilterMode>(filter->mipmap);
   f.anisotropy = filter->anisotropy;
 
-  graphics->setDefaultFilter(f);
+  instance()->setDefaultFilter(f);
 }
 
-void love_graphics_getDefaultFilter(LoveC_GraphicsRef ref, LoveC_Texture_Filter* outFilter) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Texture::Filter f = graphics->getDefaultFilter();
+void love_graphics_getDefaultFilter(LoveC_Texture_Filter* outFilter) {
+  Texture::Filter f = instance()->getDefaultFilter();
 
   outFilter->min = static_cast<LoveC_Texture_FilterMode>(f.min);
   outFilter->mag = static_cast<LoveC_Texture_FilterMode>(f.mag);
@@ -652,67 +591,63 @@ void love_graphics_getDefaultFilter(LoveC_GraphicsRef ref, LoveC_Texture_Filter*
   outFilter->anisotropy = f.anisotropy;
 }
 
-void love_graphics_setDefaultMipmapFilter(LoveC_GraphicsRef ref, LoveC_Texture_FilterMode filter, float sharpness) {
-  auto graphics = unwrap<Graphics>(ref);
+void love_graphics_setDefaultMipmapFilter(LoveC_Texture_FilterMode filter, float sharpness) {
   auto filter_ = static_cast<Texture::FilterMode>(filter);
 
-  graphics->setDefaultMipmapFilter(filter_, sharpness);
+  instance()->setDefaultMipmapFilter(filter_, sharpness);
 }
 
-void love_graphics_getDefaultMipmapFilter(LoveC_GraphicsRef ref, LoveC_Texture_FilterMode* outFilter, float* outSharpness) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_getDefaultMipmapFilter(LoveC_Texture_FilterMode* outFilter, float* outSharpness) {
   Texture::FilterMode filter;
   float sharpness;
 
-  graphics->getDefaultMipmapFilter(&filter, &sharpness);
+  instance()->getDefaultMipmapFilter(&filter, &sharpness);
 
   *outFilter = static_cast<LoveC_Texture_FilterMode>(filter);
   *outSharpness = sharpness;
 }
 
-void love_graphics_setLineWidth(LoveC_GraphicsRef ref, float width) {
-  unwrap<Graphics>(ref)->setLineWidth(width);
+void love_graphics_setLineWidth(float width) {
+  instance()->setLineWidth(width);
 }
 
-void love_graphics_setLineStyle(LoveC_GraphicsRef ref, LoveC_Graphics_LineStyle style) {
+void love_graphics_setLineStyle(LoveC_Graphics_LineStyle style) {
   auto style_ = static_cast<Graphics::LineStyle>(style);
-  unwrap<Graphics>(ref)->setLineStyle(style_);
+  instance()->setLineStyle(style_);
 }
 
-void love_graphics_setLineJoin(LoveC_GraphicsRef ref, LoveC_Graphics_LineJoin join) {
+void love_graphics_setLineJoin(LoveC_Graphics_LineJoin join) {
   auto join_ = static_cast<Graphics::LineJoin>(join);
-  unwrap<Graphics>(ref)->setLineJoin(join_);
+  instance()->setLineJoin(join_);
 }
 
-float love_graphics_getLineWidth(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getLineWidth();
+float love_graphics_getLineWidth() {
+  return instance()->getLineWidth();
 }
 
-LoveC_Graphics_LineStyle love_graphics_getLineStyle(LoveC_GraphicsRef ref) {
-  auto style = unwrap<Graphics>(ref)->getLineStyle();
+LoveC_Graphics_LineStyle love_graphics_getLineStyle() {
+  auto style = instance()->getLineStyle();
   return static_cast<LoveC_Graphics_LineStyle>(style);
 }
 
-LoveC_Graphics_LineJoin love_graphics_getLineJoin(LoveC_GraphicsRef ref) {
-  auto join = unwrap<Graphics>(ref)->getLineJoin();
+LoveC_Graphics_LineJoin love_graphics_getLineJoin() {
+  auto join = instance()->getLineJoin();
   return static_cast<LoveC_Graphics_LineJoin>(join);
 }
 
-void love_graphics_setPointSize(LoveC_GraphicsRef ref, float size) {
-  unwrap<Graphics>(ref)->setPointSize(size);
+void love_graphics_setPointSize(float size) {
+  instance()->setPointSize(size);
 }
 
-float love_graphics_getPointSize(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getPointSize();
+float love_graphics_getPointSize() {
+  return instance()->getPointSize();
 }
 
-LoveC_Bool love_graphics_setDepthMode(LoveC_GraphicsRef ref, LoveC_Graphics_CompareMode compare, LoveC_Bool write, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_setDepthMode(LoveC_Graphics_CompareMode compare, LoveC_Bool write, char** outError) {
   auto compare_ = static_cast<CompareMode>(compare);
 
   try {
-    graphics->setDepthMode(compare_, write);
+    instance()->setDepthMode(compare_, write);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -721,11 +656,9 @@ LoveC_Bool love_graphics_setDepthMode(LoveC_GraphicsRef ref, LoveC_Graphics_Comp
   return true;
 }
 
-LoveC_Bool love_graphics_setDepthMode__clear(LoveC_GraphicsRef ref, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_setDepthMode__clear(char** outError) {
   try {
-    graphics->setDepthMode();
+    instance()->setDepthMode();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -734,23 +667,20 @@ LoveC_Bool love_graphics_setDepthMode__clear(LoveC_GraphicsRef ref, char** outEr
   return true;
 }
 
-void love_graphics_getDepthMode(LoveC_GraphicsRef ref, LoveC_Graphics_CompareMode* outCompare, LoveC_Bool* outWrite) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_getDepthMode(LoveC_Graphics_CompareMode* outCompare, LoveC_Bool* outWrite) {
   CompareMode compare = CompareMode::COMPARE_ALWAYS;
   bool write = false;
-  graphics->getDepthMode(compare, write);
+  instance()->getDepthMode(compare, write);
 
   *outCompare = static_cast<LoveC_Graphics_CompareMode>(compare);
   *outWrite = write;
 }
 
-LoveC_Bool love_graphics_setMeshCullMode(LoveC_GraphicsRef ref, LoveC_Graphics_CullMode mode, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_setMeshCullMode(LoveC_Graphics_CullMode mode, char** outError) {
   auto mode_ = static_cast<CullMode>(mode);
 
   try {
-    graphics->setMeshCullMode(mode_);
+    instance()->setMeshCullMode(mode_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -759,17 +689,16 @@ LoveC_Bool love_graphics_setMeshCullMode(LoveC_GraphicsRef ref, LoveC_Graphics_C
   return true;
 }
 
-LoveC_Graphics_CullMode love_graphics_getMeshCullMode(LoveC_GraphicsRef ref, LoveC_Graphics_CullMode* outMode) {
-  CullMode mode = unwrap<Graphics>(ref)->getMeshCullMode();
+LoveC_Graphics_CullMode love_graphics_getMeshCullMode(LoveC_Graphics_CullMode* outMode) {
+  CullMode mode = instance()->getMeshCullMode();
   return static_cast<LoveC_Graphics_CullMode>(mode);
 }
 
-LoveC_Bool love_graphics_setFrontFaceWinding(LoveC_GraphicsRef ref, LoveC_Graphics_Vertex_Winding winding, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_setFrontFaceWinding(LoveC_Graphics_Vertex_Winding winding, char** outError) {
   auto winding_ = static_cast<vertex::Winding>(winding);
 
   try {
-    graphics->setFrontFaceWinding(winding_);
+    instance()->setFrontFaceWinding(winding_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -778,36 +707,34 @@ LoveC_Bool love_graphics_setFrontFaceWinding(LoveC_GraphicsRef ref, LoveC_Graphi
   return true;
 }
 
-LoveC_Graphics_Vertex_Winding love_graphics_getFrontFaceWinding(LoveC_GraphicsRef ref) {
-  vertex::Winding winding = unwrap<Graphics>(ref)->getFrontFaceWinding();
+LoveC_Graphics_Vertex_Winding love_graphics_getFrontFaceWinding() {
+  vertex::Winding winding = instance()->getFrontFaceWinding();
   return static_cast<LoveC_Graphics_Vertex_Winding>(winding);
 }
 
-void love_graphics_setWireframe(LoveC_GraphicsRef ref, LoveC_Bool wireframe) {
-  unwrap<Graphics>(ref)->setWireframe(wireframe);
+void love_graphics_setWireframe(LoveC_Bool wireframe) {
+  instance()->setWireframe(wireframe);
 }
 
-LoveC_Bool love_graphics_isWireframe(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->isWireframe();
+LoveC_Bool love_graphics_isWireframe() {
+  return instance()->isWireframe();
 }
 
-void love_graphics_setShader(LoveC_GraphicsRef ref, LoveC_ShaderRef* shader) {
-  auto graphics = unwrap<Graphics>(ref);
-
+void love_graphics_setShader(LoveC_ShaderRef* shader) {
   if (shader == nullptr) {
-    graphics->setShader();
+    instance()->setShader();
   } else {
     auto shader_ = unwrap<Shader>(shader);
-    graphics->setShader(shader_);
+    instance()->setShader(shader_);
   }
 }
 
-LoveC_ShaderRef love_graphics_getShader(LoveC_GraphicsRef ref) {
-  auto shader = unwrap<Graphics>(ref)->getShader();
+LoveC_ShaderRef love_graphics_getShader() {
+  auto shader = instance()->getShader();
   return wrap<LoveC_ShaderRef>(shader);
 }
 
-LoveC_Bool love_graphics_setDefaultShaderCode(LoveC_GraphicsRef ref, LoveC_Shader_StandardShader std, LoveC_Shader_Language lang, LoveC_Bool isGammaCorrected, LoveC_ShaderStage_StageType stage, const char* code, char** outError) {
+LoveC_Bool love_graphics_setDefaultShaderCode(LoveC_Shader_StandardShader std, LoveC_Shader_Language lang, LoveC_Bool isGammaCorrected, LoveC_ShaderStage_StageType stage, const char* code, char** outError) {
   auto std_ = static_cast<Shader::StandardShader>(std);
   auto lang_ = static_cast<Shader::Language>(lang);
   auto stage_ = static_cast<ShaderStage::StageType>(stage);
@@ -824,10 +751,8 @@ LoveC_Bool love_graphics_setDefaultShaderCode(LoveC_GraphicsRef ref, LoveC_Shade
   return true;
 }
 
-void love_graphics_getSupported(LoveC_GraphicsRef ref, LoveC_Graphics_Capabilities* outCaps) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  const Graphics::Capabilities &caps = graphics->getCapabilities();
+void love_graphics_getSupported(LoveC_Graphics_Capabilities* outCaps) {
+  const Graphics::Capabilities &caps = instance()->getCapabilities();
 
   for (int i = 0; i < (int) Graphics::LIMIT_MAX_ENUM; i++)
     {
@@ -845,31 +770,27 @@ void love_graphics_getSupported(LoveC_GraphicsRef ref, LoveC_Graphics_Capabiliti
     }
 }
 
-LoveC_Bool love_graphics_isCanvasFormatSupported(LoveC_GraphicsRef ref, LoveC_Graphics_PixelFormat format, LoveC_OptionalBool readable) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_isCanvasFormatSupported(LoveC_Graphics_PixelFormat format, LoveC_OptionalBool readable) {
   auto format_ = static_cast<PixelFormat>(format);
 
   if (readable == LOVE_C_NIL) {
-    return graphics->isCanvasFormatSupported(format_);
+    return instance()->isCanvasFormatSupported(format_);
   } else {
-    return graphics->isCanvasFormatSupported(format_, readable);
+    return instance()->isCanvasFormatSupported(format_, readable);
   }
 }
 
-LoveC_Bool love_graphics_isImageFormatSupported(LoveC_GraphicsRef ref, LoveC_Graphics_PixelFormat format) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_isImageFormatSupported(LoveC_Graphics_PixelFormat format) {
   auto format_ = static_cast<PixelFormat>(format);
 
-  return graphics->isImageFormatSupported(format_);
+  return instance()->isImageFormatSupported(format_);
 }
 
-LoveC_Bool love_graphics_getRendererInfo(LoveC_GraphicsRef ref, LoveC_Graphics_RendererInfo* outInfo, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
-
+LoveC_Bool love_graphics_getRendererInfo(LoveC_Graphics_RendererInfo* outInfo, char** outError) {
   Graphics::RendererInfo info;
 
   try {
-    info = graphics->getRendererInfo();
+    info = instance()->getRendererInfo();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -883,10 +804,8 @@ LoveC_Bool love_graphics_getRendererInfo(LoveC_GraphicsRef ref, LoveC_Graphics_R
   return true;
 }
 
-void love_graphics_getStats(LoveC_GraphicsRef ref, LoveC_Graphics_Stats* outStats) {
-  auto graphics = unwrap<Graphics>(ref);
-
-  Graphics::Stats stats = graphics->getStats();
+void love_graphics_getStats(LoveC_Graphics_Stats* outStats) {
+  Graphics::Stats stats = instance()->getStats();
 
   outStats->drawCalls = stats.drawCalls;
   outStats->drawCallsBatched = stats.drawCallsBatched;
@@ -906,14 +825,13 @@ Matrix4 convertMatrix4(const LoveC_Matrix4* matrixOpt) {
   }
 }
 
-LoveC_Bool love_graphics_draw(LoveC_GraphicsRef ref, LoveC_DrawableRef drawable, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_draw(LoveC_DrawableRef drawable, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto drawable_ = unwrap<Drawable>(drawable);
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
-    graphics->draw(drawable_, m);
+    instance()->draw(drawable_, m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -922,15 +840,14 @@ LoveC_Bool love_graphics_draw(LoveC_GraphicsRef ref, LoveC_DrawableRef drawable,
   return true;
 }
 
-LoveC_Bool love_graphics_draw__texture(LoveC_GraphicsRef ref, LoveC_TextureRef texture, LoveC_QuadRef quad, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_draw__texture(LoveC_TextureRef texture, LoveC_QuadRef quad, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
   auto quad_ = unwrap<Quad>(quad);
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
-    graphics->draw(texture_, quad_, m);
+    instance()->draw(texture_, quad_, m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -939,14 +856,13 @@ LoveC_Bool love_graphics_draw__texture(LoveC_GraphicsRef ref, LoveC_TextureRef t
   return true;
 }
 
-LoveC_Bool love_graphics_drawLayer(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int layer, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_drawLayer(LoveC_TextureRef texture, int layer, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
-    graphics->drawLayer(texture_, layer, m);
+    instance()->drawLayer(texture_, layer, m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -955,15 +871,14 @@ LoveC_Bool love_graphics_drawLayer(LoveC_GraphicsRef ref, LoveC_TextureRef textu
   return true;
 }
 
-LoveC_Bool love_graphics_drawLayer__quad(LoveC_GraphicsRef ref, LoveC_TextureRef texture, int layer, LoveC_QuadRef quad, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_drawLayer__quad(LoveC_TextureRef texture, int layer, LoveC_QuadRef quad, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
   auto quad_ = unwrap<Quad>(quad);
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
-    graphics->drawLayer(texture_, layer, quad_, m);
+    instance()->drawLayer(texture_, layer, quad_, m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -972,14 +887,13 @@ LoveC_Bool love_graphics_drawLayer__quad(LoveC_GraphicsRef ref, LoveC_TextureRef
   return true;
 }
 
-LoveC_Bool love_graphics_drawInstanced(LoveC_GraphicsRef ref, LoveC_MeshRef mesh, const LoveC_Matrix4* matrixOpt, int instancecount, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_drawInstanced(LoveC_MeshRef mesh, const LoveC_Matrix4* matrixOpt, int instancecount, char** outError) {
   auto mesh_ = unwrap<Mesh>(mesh);
 
   Matrix4 m = convertMatrix4(matrixOpt);
 
   try {
-    graphics->drawInstanced(mesh_, m, instancecount);
+    instance()->drawInstanced(mesh_, m, instancecount);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1000,8 +914,7 @@ Font::ColoredString convertColoredString(const LoveC_Font_ColoredString* str) {
   return std::move(str_);
 }
 
-LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_print(const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, const LoveC_Matrix4* matrixOpt, char** outError) {
   std::vector<Font::ColoredString> strs_;
 
   if (strs == nullptr) {
@@ -1018,9 +931,9 @@ LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredSt
   try {
     if (fontOpt != nullptr) {
       auto font_ = unwrap<Font>(*fontOpt);
-      graphics->print(strs_, font_, m);
+      instance()->print(strs_, font_, m);
     } else {
-      graphics->print(strs_, m);
+      instance()->print(strs_, m);
     }
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
@@ -1030,8 +943,7 @@ LoveC_Bool love_graphics_print(LoveC_GraphicsRef ref, const LoveC_Font_ColoredSt
   return true;
 }
 
-LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_printf(const LoveC_Font_ColoredString* strs, LoveC_FontRef* fontOpt, float wrap, LoveC_Font_AlignMode align, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto align_ = static_cast<Font::AlignMode>(align);
   std::vector<Font::ColoredString> strs_;
 
@@ -1050,9 +962,9 @@ LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredS
   try {
     if (fontOpt != nullptr) {
       auto font_ = unwrap<Font>(fontOpt);
-      graphics->printf(strs_, font_, wrap, align_, m);
+      instance()->printf(strs_, font_, wrap, align_, m);
     } else {
-      graphics->printf(strs_, wrap, align_, m);
+      instance()->printf(strs_, wrap, align_, m);
     }
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
@@ -1062,13 +974,12 @@ LoveC_Bool love_graphics_printf(LoveC_GraphicsRef ref, const LoveC_Font_ColoredS
   return true;
 }
 
-LoveC_Bool love_graphics_points(LoveC_GraphicsRef ref, const LoveC_Vector2* positions, const LoveC_Colorf* colors, LoveC_Int64 numpoints, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_points(const LoveC_Vector2* positions, const LoveC_Colorf* colors, LoveC_Int64 numpoints, char** outError) {
   auto positions_ = unwrap<const Vector2>(positions);
   auto colors_ = unwrap<const Colorf>(colors);
 
   try {
-    graphics->points(positions_, colors_, numpoints);
+    instance()->points(positions_, colors_, numpoints);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1077,12 +988,11 @@ LoveC_Bool love_graphics_points(LoveC_GraphicsRef ref, const LoveC_Vector2* posi
   return true;
 }
 
-LoveC_Bool love_graphics_polyline(LoveC_GraphicsRef ref, const LoveC_Vector2* coords, LoveC_Int64 numvertices, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_polyline(const LoveC_Vector2* coords, LoveC_Int64 numvertices, char** outError) {
   auto coords_ = unwrap<const Vector2>(coords);
 
   try {
-    graphics->polyline(coords_, numvertices);
+    instance()->polyline(coords_, numvertices);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1091,15 +1001,14 @@ LoveC_Bool love_graphics_polyline(LoveC_GraphicsRef ref, const LoveC_Vector2* co
   return true;
 }
 
-LoveC_Bool love_graphics_rectangle(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, float x, float y, float w, float h, float rx, float ry, LoveC_OptionalInt points, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_rectangle(LoveC_Graphics_DrawMode mode, float x, float y, float w, float h, float rx, float ry, LoveC_OptionalInt points, char** outError) {
   auto mode_ = static_cast<Graphics::DrawMode>(mode);
 
   try {
     if (points == LOVE_C_NIL)
-      graphics->rectangle(mode_, x, y, w, h, rx, ry);
+      instance()->rectangle(mode_, x, y, w, h, rx, ry);
     else
-      graphics->rectangle(mode_, x, y, w, h, rx, ry, points);
+      instance()->rectangle(mode_, x, y, w, h, rx, ry, points);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1108,15 +1017,14 @@ LoveC_Bool love_graphics_rectangle(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMod
   return true;
 }
 
-LoveC_Bool love_graphics_circle(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, float x, float y, float radius, LoveC_OptionalInt points, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_circle(LoveC_Graphics_DrawMode mode, float x, float y, float radius, LoveC_OptionalInt points, char** outError) {
   auto mode_ = static_cast<Graphics::DrawMode>(mode);
 
   try {
     if (points == LOVE_C_NIL)
-      graphics->circle(mode_, x, y, radius);
+      instance()->circle(mode_, x, y, radius);
     else
-      graphics->circle(mode_, x, y, radius, points);
+      instance()->circle(mode_, x, y, radius, points);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1125,15 +1033,14 @@ LoveC_Bool love_graphics_circle(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode m
   return true;
 }
 
-LoveC_Bool love_graphics_ellipse(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, float x, float y, float a, float b, LoveC_OptionalInt points, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_ellipse(LoveC_Graphics_DrawMode mode, float x, float y, float a, float b, LoveC_OptionalInt points, char** outError) {
   auto mode_ = static_cast<Graphics::DrawMode>(mode);
 
   try {
     if (points == LOVE_C_NIL)
-      graphics->ellipse(mode_, x, y, a, b);
+      instance()->ellipse(mode_, x, y, a, b);
     else
-      graphics->ellipse(mode_, x, y, a, b, points);
+      instance()->ellipse(mode_, x, y, a, b, points);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1142,16 +1049,15 @@ LoveC_Bool love_graphics_ellipse(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode 
   return true;
 }
 
-LoveC_Bool love_graphics_arc(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, LoveC_Graphics_ArcMode arcmode, float x, float y, float radius, float angle1, float angle2, LoveC_OptionalInt points, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_arc(LoveC_Graphics_DrawMode mode, LoveC_Graphics_ArcMode arcmode, float x, float y, float radius, float angle1, float angle2, LoveC_OptionalInt points, char** outError) {
   auto mode_ = static_cast<Graphics::DrawMode>(mode);
   auto arcmode_ = static_cast<Graphics::ArcMode>(arcmode);
 
   try {
     if (points == LOVE_C_NIL)
-      graphics->arc(mode_, arcmode_, x, y, radius, angle1, angle2);
+      instance()->arc(mode_, arcmode_, x, y, radius, angle1, angle2);
     else
-      graphics->arc(mode_, arcmode_, x, y, radius, angle1, angle2, points);
+      instance()->arc(mode_, arcmode_, x, y, radius, angle1, angle2, points);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1160,13 +1066,12 @@ LoveC_Bool love_graphics_arc(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode
   return true;
 }
 
-LoveC_Bool love_graphics_polygon(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode mode, const LoveC_Vector2* coords, LoveC_Int64 numvertices, char** outError) {
-  auto graphics = unwrap<Graphics>(ref);
+LoveC_Bool love_graphics_polygon(LoveC_Graphics_DrawMode mode, const LoveC_Vector2* coords, LoveC_Int64 numvertices, char** outError) {
   auto mode_ = static_cast<Graphics::DrawMode>(mode);
   auto coords_ = unwrap<const Vector2>(coords);
 
   try {
-    graphics->polygon(mode_, coords_, numvertices);
+    instance()->polygon(mode_, coords_, numvertices);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1175,19 +1080,19 @@ LoveC_Bool love_graphics_polygon(LoveC_GraphicsRef ref, LoveC_Graphics_DrawMode 
   return true;
 }
 
-void love_graphics_flushBatch(LoveC_GraphicsRef ref) {
-  unwrap<Graphics>(ref)->flushStreamDraws();
+void love_graphics_flushBatch() {
+  instance()->flushStreamDraws();
 }
 
-LoveC_Int64 love_graphics_getStackDepth(LoveC_GraphicsRef ref) {
-  return unwrap<Graphics>(ref)->getStackDepth();
+LoveC_Int64 love_graphics_getStackDepth() {
+  return instance()->getStackDepth();
 }
 
-LoveC_Bool love_graphics_push(LoveC_GraphicsRef ref, LoveC_Graphics_StackType stype, char** outError) {
+LoveC_Bool love_graphics_push(LoveC_Graphics_StackType stype, char** outError) {
   auto stype_ = static_cast<Graphics::StackType>(stype);
 
   try {
-    unwrap<Graphics>(ref)->push(stype_);
+    instance()->push(stype_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1196,9 +1101,9 @@ LoveC_Bool love_graphics_push(LoveC_GraphicsRef ref, LoveC_Graphics_StackType st
   return true;
 }
 
-LoveC_Bool love_graphics_pop(LoveC_GraphicsRef ref, char** outError) {
+LoveC_Bool love_graphics_pop(char** outError) {
   try {
-    unwrap<Graphics>(ref)->pop();
+    instance()->pop();
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -1207,43 +1112,43 @@ LoveC_Bool love_graphics_pop(LoveC_GraphicsRef ref, char** outError) {
   return true;
 }
 
-void love_graphics_rotate(LoveC_GraphicsRef ref, float angle) {
-  unwrap<Graphics>(ref)->rotate(angle);
+void love_graphics_rotate(float angle) {
+  instance()->rotate(angle);
 }
 
-void love_graphics_scale(LoveC_GraphicsRef ref, float sx, float sy) {
-  unwrap<Graphics>(ref)->scale(sx, sy);
+void love_graphics_scale(float sx, float sy) {
+  instance()->scale(sx, sy);
 }
 
-void love_graphics_translate(LoveC_GraphicsRef ref, float x, float y) {
-  unwrap<Graphics>(ref)->translate(x, y);
+void love_graphics_translate(float x, float y) {
+  instance()->translate(x, y);
 }
 
-void love_graphics_shear(LoveC_GraphicsRef ref, float kx, float ky) {
-  unwrap<Graphics>(ref)->shear(kx, ky);
+void love_graphics_shear(float kx, float ky) {
+  instance()->shear(kx, ky);
 }
 
-void love_graphics_origin(LoveC_GraphicsRef ref) {
-  unwrap<Graphics>(ref)->origin();
+void love_graphics_origin() {
+  instance()->origin();
 }
 
-void love_graphics_transformPoint(LoveC_GraphicsRef ref, const LoveC_Vector2* p, LoveC_Vector2* outPoint) {
+void love_graphics_transformPoint(const LoveC_Vector2* p, LoveC_Vector2* outPoint) {
   auto p_ = unwrap<const Vector2>(p);
-  auto p2 = unwrap<Graphics>(ref)->transformPoint(*p_);
+  auto p2 = instance()->transformPoint(*p_);
   outPoint->x = p2.x;
   outPoint->y = p2.y;
 }
 
-void love_graphics_inverseTransformPoint(LoveC_GraphicsRef ref, const LoveC_Vector2* p, LoveC_Vector2* outPoint) {
+void love_graphics_inverseTransformPoint(const LoveC_Vector2* p, LoveC_Vector2* outPoint) {
   auto p_ = unwrap<const Vector2>(p);
-  auto p2 = unwrap<Graphics>(ref)->inverseTransformPoint(*p_);
+  auto p2 = instance()->inverseTransformPoint(*p_);
   outPoint->x = p2.x;
   outPoint->y = p2.y;
 }
 
 
 LoveC_Bool love_graphics_registerModule(char** outError) {
-  Graphics *instance = Module::getInstance<Graphics>(Module::M_GRAPHICS);
+  Graphics *instance = instance();
   if (instance == nullptr) {
     try {
       instance = new opengl::Graphics();

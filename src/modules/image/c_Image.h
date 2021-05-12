@@ -11,20 +11,13 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-
-struct LoveC_ImageHandle;
-typedef struct LoveC_ImageHandle* LoveC_ImageRef;
-
-LOVE_EXPORT LoveC_ImageRef love_image_getInstance();
-
-LOVE_EXPORT LoveC_Bool love_image_newImageData(LoveC_ImageRef ref, int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError);
-LOVE_EXPORT LoveC_Bool love_image_newImageData__Data(LoveC_ImageRef ref, LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError);
-LOVE_EXPORT LoveC_Bool love_image_newCompressedData(LoveC_ImageRef ref, LoveC_DataRef data, LoveC_CompressedDataRef* outCompressedData, char** outError);
-LOVE_EXPORT LoveC_Bool love_image_isCompressed(LoveC_ImageRef ref, LoveC_DataRef data);
-LOVE_EXPORT LoveC_Bool love_image_newCubeFaces(LoveC_ImageRef ref, LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newCompressedData(LoveC_DataRef data, LoveC_CompressedDataRef* outCompressedData, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_isCompressed(LoveC_DataRef data);
+LOVE_EXPORT LoveC_Bool love_image_newCubeFaces(LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError);
 
 LOVE_EXPORT LoveC_Bool love_image_registerModule(char** outError);
-
 
 LOVE_C_EXTERN_C_END
 

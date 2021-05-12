@@ -13,9 +13,6 @@
 LOVE_C_EXTERN_C_BEGIN
 
 
-struct LoveC_FilesystemHandle;
-typedef struct LoveC_FilesystemHandle* LoveC_FilesystemRef;
-
 typedef enum LoveC_Filesystem_FileType {
   FILETYPE_FILE,
   FILETYPE_DIRECTORY,
@@ -30,45 +27,45 @@ typedef struct LoveC_Filesystem_InfoStruct {
   LoveC_Filesystem_FileType type;
 } LoveC_Filesystem_InfoStruct;
 
-LOVE_EXPORT LoveC_Bool love_filesystem_registerModule(char** outError);
-LOVE_EXPORT LoveC_FilesystemRef love_filesystem_getInstance();
-LOVE_EXPORT LoveC_Bool love_filesystem_init(LoveC_FilesystemRef ref, const char* argv0, char** outError);
-LOVE_EXPORT void love_filesystem_setFused(LoveC_FilesystemRef ref, LoveC_Bool fused);
-LOVE_EXPORT LoveC_Bool love_filesystem_isFused(LoveC_FilesystemRef filesystem);
-LOVE_EXPORT void love_filesystem_setAndroidSaveExternal(LoveC_FilesystemRef ref, LoveC_Bool useExternal);
-LOVE_EXPORT LoveC_Bool love_filesystem_setIdentity(LoveC_FilesystemRef ref, const char* identity, LoveC_Bool append, char** outError);
-LOVE_EXPORT void love_filesystem_getIdentity(LoveC_FilesystemRef ref, const char** outIdentity);
-LOVE_EXPORT LoveC_Bool love_filesystem_setSource(LoveC_FilesystemRef ref, const char* source, char** outError);
-LOVE_EXPORT void love_filesystem_getSource(LoveC_FilesystemRef ref, const char** outSource);
+LOVE_EXPORT LoveC_Bool love_filesystem_init(const char* argv0, char** outError);
+LOVE_EXPORT void love_filesystem_setFused(LoveC_Bool fused);
+LOVE_EXPORT LoveC_Bool love_filesystem_isFused();
+LOVE_EXPORT void love_filesystem_setAndroidSaveExternal(LoveC_Bool useExternal);
+LOVE_EXPORT LoveC_Bool love_filesystem_setIdentity(const char* identity, LoveC_Bool append, char** outError);
+LOVE_EXPORT void love_filesystem_getIdentity(const char** outIdentity);
+LOVE_EXPORT LoveC_Bool love_filesystem_setSource(const char* source, char** outError);
+LOVE_EXPORT void love_filesystem_getSource(const char** outSource);
 
-LOVE_EXPORT LoveC_Bool love_filesystem_mount__string(LoveC_FilesystemRef ref, const char* archive, const char* mountpoint, LoveC_Bool append);
+LOVE_EXPORT LoveC_Bool love_filesystem_mount__string(const char* archive, const char* mountpoint, LoveC_Bool append);
 // TODO love_filesystem_mount__Data
 // TODO love_filesystem_mount__DroppedFile
 
-LOVE_EXPORT LoveC_Bool love_filesystem_unmount__string(LoveC_FilesystemRef ref, const char* archive);
+LOVE_EXPORT LoveC_Bool love_filesystem_unmount__string(const char* archive);
 // TODO love_filesystem_unmount__Data
 
-LOVE_EXPORT LoveC_Bool love_filesystem_newFile(LoveC_FilesystemRef ref, const char* filename, LoveC_File_Mode mode, LoveC_FileRef *outFile, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_newFile(const char* filename, LoveC_File_Mode mode, LoveC_FileRef *outFile, char** outError);
 
-LOVE_EXPORT LoveC_Bool love_filesystem_newFileData__string(LoveC_FilesystemRef ref, const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_newFileData__string(const char* data, const char* filename, LoveC_FileDataRef *outFileData, char** outError);
 // TODO love_filesystem_newFileData__File
 
-LOVE_EXPORT void love_filesystem_getWorkingDirectory(LoveC_FilesystemRef ref, const char** outWorkingDirectory);
-LOVE_EXPORT void love_filesystem_getUserDirectory(LoveC_FilesystemRef ref, char** outUserDirectory);
-LOVE_EXPORT void love_filesystem_getAppdataDirectory(LoveC_FilesystemRef ref, char** outAppdataDirectory);
-LOVE_EXPORT void love_filesystem_getSaveDirectory(LoveC_FilesystemRef ref, const char** outSaveDirectory);
-LOVE_EXPORT void love_filesystem_getSourceBaseDirectory(LoveC_FilesystemRef ref, char** outSourceBaseDirectory);
-LOVE_EXPORT LoveC_Bool love_filesystem_getRealDirectory(LoveC_FilesystemRef ref, const char* filename, char** outRealDirectory, char** outError);
-LOVE_EXPORT void love_filesystem_getExecutablePath(LoveC_FilesystemRef ref, char** outExecutablePath);
-LOVE_EXPORT LoveC_Bool love_filesystem_getInfo(LoveC_FilesystemRef ref, const char* filepath, LoveC_Filesystem_InfoStruct* outInfo);
-LOVE_EXPORT LoveC_Bool love_filesystem_createDirectory(LoveC_FilesystemRef ref, const char* filepath);
-LOVE_EXPORT LoveC_Bool love_filesystem_remove(LoveC_FilesystemRef ref, const char* filepath);
-LOVE_EXPORT LoveC_Bool love_filesystem_read(LoveC_FilesystemRef ref, const char* filename, LoveC_Int64 size, LoveC_FileDataRef *outFileData, char** outError);
-LOVE_EXPORT LoveC_Bool love_filesystem_write(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError);
-LOVE_EXPORT LoveC_Bool love_filesystem_append(LoveC_FilesystemRef ref, const char* filename, const void* data, LoveC_Int64 size, char** outError);
-LOVE_EXPORT LoveC_Bool love_filesystem_getDirectoryItems(LoveC_FilesystemRef ref, const char* dir, char*** outItems);
-LOVE_EXPORT void love_filesystem_setSymlinksEnabled(LoveC_FilesystemRef ref, LoveC_Bool enable);
-LOVE_EXPORT LoveC_Bool love_filesystem_areSymlinksEnabled(LoveC_FilesystemRef ref);
+LOVE_EXPORT void love_filesystem_getWorkingDirectory(const char** outWorkingDirectory);
+LOVE_EXPORT void love_filesystem_getUserDirectory(char** outUserDirectory);
+LOVE_EXPORT void love_filesystem_getAppdataDirectory(char** outAppdataDirectory);
+LOVE_EXPORT void love_filesystem_getSaveDirectory(const char** outSaveDirectory);
+LOVE_EXPORT void love_filesystem_getSourceBaseDirectory(char** outSourceBaseDirectory);
+LOVE_EXPORT LoveC_Bool love_filesystem_getRealDirectory(const char* filename, char** outRealDirectory, char** outError);
+LOVE_EXPORT void love_filesystem_getExecutablePath(char** outExecutablePath);
+LOVE_EXPORT LoveC_Bool love_filesystem_getInfo(const char* filepath, LoveC_Filesystem_InfoStruct* outInfo);
+LOVE_EXPORT LoveC_Bool love_filesystem_createDirectory(const char* filepath);
+LOVE_EXPORT LoveC_Bool love_filesystem_remove(const char* filepath);
+LOVE_EXPORT LoveC_Bool love_filesystem_read(const char* filename, LoveC_Int64 size, LoveC_FileDataRef *outFileData, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_write(const char* filename, const void* data, LoveC_Int64 size, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_append(const char* filename, const void* data, LoveC_Int64 size, char** outError);
+LOVE_EXPORT LoveC_Bool love_filesystem_getDirectoryItems(const char* dir, char*** outItems);
+LOVE_EXPORT void love_filesystem_setSymlinksEnabled(LoveC_Bool enable);
+LOVE_EXPORT LoveC_Bool love_filesystem_areSymlinksEnabled();
+
+LOVE_EXPORT LoveC_Bool love_filesystem_registerModule(char** outError);
 
 LOVE_C_EXTERN_C_END
 

@@ -12,20 +12,16 @@
 using namespace love;
 using namespace love::image;
 
+#define instance() (Module::getInstance<Image>(Module::M_IMAGE))
 
-LoveC_ImageRef love_image_getInstance() {
-  auto inst = Module::getInstance<Image>(Module::M_IMAGE);
-  return wrap<LoveC_ImageRef>(inst);
-}
 
-LoveC_Bool love_image_newImageData(LoveC_ImageRef ref, int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError) {
-  auto image = unwrap<Image>(ref);
+LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError) {
   auto format_ = static_cast<PixelFormat>(format);
 
   ImageData* t = nullptr;
 
   try {
-    t = image->newImageData(w, h, format_);
+    t = instance()->newImageData(w, h, format_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -36,14 +32,13 @@ LoveC_Bool love_image_newImageData(LoveC_ImageRef ref, int w, int h, LoveC_Graph
   return true;
 }
 
-LoveC_Bool love_image_newImageData__Data(LoveC_ImageRef ref, LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError) {
-  auto image = unwrap<Image>(ref);
+LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError) {
   auto data_ = unwrap<Data>(data);
 
   ImageData* t = nullptr;
 
   try {
-    t = image->newImageData(data_);
+    t = instance()->newImageData(data_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -54,14 +49,13 @@ LoveC_Bool love_image_newImageData__Data(LoveC_ImageRef ref, LoveC_DataRef data,
   return true;
 }
 
-LoveC_Bool love_image_newCompressedData(LoveC_ImageRef ref, LoveC_DataRef data, LoveC_CompressedDataRef* outCompressedData, char** outError) {
-  auto image = unwrap<Image>(ref);
+LoveC_Bool love_image_newCompressedData(LoveC_DataRef data, LoveC_CompressedDataRef* outCompressedData, char** outError) {
   auto data_ = unwrap<Data>(data);
 
   CompressedImageData *t = nullptr;
 
   try {
-    t = image->newCompressedData(data_);
+    t = instance()->newCompressedData(data_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -72,21 +66,19 @@ LoveC_Bool love_image_newCompressedData(LoveC_ImageRef ref, LoveC_DataRef data, 
   return true;
 }
 
-LoveC_Bool love_image_isCompressed(LoveC_ImageRef ref, LoveC_DataRef data) {
-  auto image = unwrap<Image>(ref);
+LoveC_Bool love_image_isCompressed(LoveC_DataRef data) {
   auto data_ = unwrap<Data>(data);
 
-  return image->isCompressed(data_);
+  return instance()->isCompressed(data_);
 }
 
-LoveC_Bool love_image_newCubeFaces(LoveC_ImageRef ref, LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError) {
-  auto image = unwrap<Image>(ref);
+LoveC_Bool love_image_newCubeFaces(LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError) {
   auto imageData_ = unwrap<ImageData>(imageData);
 
   std::vector<StrongRef<ImageData>> faces;
 
   try {
-    faces = image->newCubeFaces(imageData_);
+    faces = instance()->newCubeFaces(imageData_);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -102,7 +94,7 @@ LoveC_Bool love_image_newCubeFaces(LoveC_ImageRef ref, LoveC_ImageDataRef imageD
 
 
 LoveC_Bool love_image_registerModule(char** outError) {
-  Image *instance = Module::getInstance<Image>(Module::M_IMAGE);
+  Image *instance = instance();
   if (instance == nullptr) {
     try {
       instance = new image::Image();

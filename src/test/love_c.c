@@ -26,10 +26,8 @@ int init() {
     return LOVE_C_FALSE;
   }
 
-  LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
-
   char* exepath = NULL;
-  love_filesystem_getExecutablePath(filesystem, &exepath);
+  love_filesystem_getExecutablePath(&exepath);
   if (exepath == NULL) {
     printf("No exepath\n");
     return LOVE_C_FALSE;
@@ -37,32 +35,29 @@ int init() {
 
   printf("Exepath: %s\n", exepath);
 
-  LoveC_Bool is_fused = love_filesystem_setSource(filesystem, exepath, &error);
+  LoveC_Bool is_fused = love_filesystem_setSource(exepath, &error);
   if (is_fused) {
     printf("Is fused\n", error);
     free(error);
   }
 
-  love_filesystem_setFused(filesystem, is_fused);
-
-
-  LoveC_GraphicsRef graphics = love_graphics_getInstance();
+  love_filesystem_setFused(is_fused);
 
 #define SET_SHADER(lang)                                                \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_PIXEL, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_VIDEOPIXEL, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_ARRAYPIXEL, NULL);
+  love_graphics_setDefaultShaderCode(STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_PIXEL, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_VERTEX, SHADER_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_FALSE, STAGE_PIXEL, SHADER_##lang##_ARRAYPIXEL, NULL);
 
 #define SET_SHADER_GAMMA(lang)                                                \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_PIXEL, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_VIDEOPIXEL, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
-  love_graphics_setDefaultShaderCode(graphics, STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_ARRAYPIXEL, NULL);
+  love_graphics_setDefaultShaderCode(STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_DEFAULT, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_PIXEL, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_VIDEO, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_VIDEOPIXEL, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_VERTEX, SHADER_GAMMA_##lang##_VERTEX, NULL); \
+  love_graphics_setDefaultShaderCode(STANDARD_ARRAY, LANGUAGE_##lang, LOVE_C_TRUE, STAGE_PIXEL, SHADER_GAMMA_##lang##_ARRAYPIXEL, NULL);
 
   SET_SHADER(GLSL1)
   SET_SHADER(ESSL1)
@@ -73,10 +68,7 @@ int init() {
   SET_SHADER_GAMMA(GLSL3)
   SET_SHADER_GAMMA(ESSL3)
 
-  LoveC_WindowRef window = love_window_getInstance();
-
-
-  love_window_setTitle(window, "Love C");
+  love_window_setTitle("Love C");
 
   LoveC_Window_WindowSettings settings;
   settings.fullscreen = LOVE_C_FALSE;
@@ -98,7 +90,7 @@ int init() {
   settings.x = 0;
   settings.y = 0;
 
-  if (!love_window_setMode(window, 800, 600, &settings, &error)) {
+  if (!love_window_setMode(800, 600, &settings, &error)) {
     printf("Error initializing window: %s\n", error);
     return LOVE_C_FALSE;
   }
@@ -106,327 +98,7 @@ int init() {
   return LOVE_C_TRUE;
 }
 
-int test_filesystem(char* argv0) {
-  char* error = NULL;
-
-  LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
-  printf("Filesystem: %x\n", filesystem);
-
-  if (!love_filesystem_init(filesystem, argv0, &error)) {
-    printf("Error love_filesystem_init: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  const char* str = NULL;
-  love_filesystem_getIdentity(filesystem, &str);
-  printf("Identity: %s\n", str);
-
-  if (!love_filesystem_setIdentity(filesystem, "love_c", 1, &error)) {
-    printf("Error love_filesystem_setIdentity: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  love_filesystem_getIdentity(filesystem, &str);
-  printf("Identity: %s\n", str);
-  printf("Refcount: %d\n", love_Object_getReferenceCount((LoveC_ObjectRef)filesystem));
-
-  LoveC_FileDataRef fileData = NULL;
-
-  if (!love_filesystem_newFileData__string(filesystem, "asdfg", "test.txt", &fileData, &error)) {
-    printf("Error love_filesystem_newFileData: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  love_filesystem_FileData_getFilename(fileData, &str);
-  printf("FileData filename: %s\n", str);
-
-  love_filesystem_FileData_getName(fileData, &str);
-  printf("FileData name: %s\n", str);
-
-  love_filesystem_FileData_getExtension(fileData, &str);
-  printf("FileData extension: %s\n", str);
-
-
-  LoveC_FileRef file = NULL;
-  if (!love_filesystem_newFile(filesystem, "hoge.lua", MODE_WRITE, &file, &error)) {
-    printf("Error love_filesystem_newFile: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  love_filesystem_File_getFilename(file, &str);
-  printf("File filename: %s\n", str);
-
-  love_filesystem_File_getExtension(file, &str);
-  printf("File extension: %s\n", str);
-
-  char data[] = "print('piyo')";
-
-  if (!love_filesystem_File_write__void_ptr(file, data, strlen(data), &error)) {
-    printf("Error love_filesystem_write__void_ptr: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  const char* working = NULL;
-  love_filesystem_getWorkingDirectory(filesystem, &working);
-  printf("Working directory: %s\n", working);
-
-  char **files = NULL;
-  LoveC_Int64 size;
-  love_filesystem_getDirectoryItems(filesystem, "", &files);
-
-  for (int i = 0; files[i]; i++) {
-    printf("FILE: %s\n", files[i]);
-  }
-  free(files);
-
-  char* real = NULL;
-  if (!love_filesystem_getRealDirectory(filesystem, "hoge.lua", &real, &error)) {
-    printf("Error love_filesystem_getRealDirectory: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  printf("Real directory: %s\n", real);
-  free(real);
-
-  return LOVE_C_TRUE;
-}
-
-int test_window() {
-  LoveC_WindowRef window = love_window_getInstance();
-
-  printf("Window: %x\n", window);
-
-  printf("Window isOpen: %d\n", love_window_isOpen(window));
-
-  /* love_window_showMessageBox(window, "Test Window", "spiral matai", MESSAGEBOX_INFO, LOVE_C_FALSE); */
-
-  return LOVE_C_TRUE;
-}
-
-int test_graphics() {
-  char* error = NULL;
-
-  LoveC_GraphicsRef graphics = love_graphics_getInstance();
-
-  printf("Graphics: %x\n", graphics);
-
-  LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
-  colors[0] = malloc(sizeof(LoveC_Colorf));
-  colors[0]->r = 1.0f;
-  colors[0]->g = 1.0f;
-  colors[0]->b = 1.0f;
-  colors[1] = NULL;
-
-  LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
-  discards[0] = LOVE_C_TRUE;
-  discards[1] = LOVE_C_NIL;
-
-  LoveC_Colorf colorBox = {
-    .r = 0.86,
-    .g = 0.86,
-    .b = 0.86,
-    .a = 0.86,
-  };
-
-  LoveC_Colorf colorCell = {
-    .r = 1.0,
-    .g = 0.0,
-    .b = 1.0,
-    .a = 0.86,
-  };
-
-  LoveC_Module_FontRef font = love_font_getInstance();
-  printf("Font: %x\n", font);
-
-  LoveC_FilesystemRef filesystem = love_filesystem_getInstance();
-
-  LoveC_FileRef file = NULL;
-  if (!love_filesystem_newFile(filesystem, "MS-Gothic.ttf", MODE_READ, &file, &error)) {
-    printf("Error love_filesystem_newFile: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  LoveC_FileDataRef fileData = NULL;
-  if (!love_filesystem_File_read__FileData(file, -1, &fileData, &error)) {
-    printf("Error love_filesystem_read__FileData: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  printf("FileData size: %d\n", love_Data_getSize((LoveC_DataRef)fileData));
-
-  LoveC_Font_RasterizerRef rasterizer = NULL;
-  if (!love_font_newTrueTypeRasterizer(font, fileData, 30, 1.0, HINTING_NORMAL, &rasterizer, &error)) {
-    printf("Error love_font_newTrueTypeRasterizer: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  printf("Glyph count: %d\n", love_font_Rasterizer_getGlyphCount(rasterizer));
-
-  LoveC_Texture_Filter filter = {
-    .min = FILTER_LINEAR,
-    .mag = FILTER_LINEAR,
-    .mipmap = FILTER_NONE,
-    .anisotropy = 1.0f
-  };
-
-  LoveC_FontRef theFont = NULL;
-  if (!love_graphics_newFont(graphics, rasterizer, &filter, &theFont, &error)) {
-    printf("Error love_graphics_newFont: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
-  printf("Font: %x\n", theFont);
-  printf("Rasterizer height: %f\n", love_font_Rasterizer_getHeight(rasterizer));
-  printf("Font height: %f\n", love_graphics_Font_getHeight(theFont));
-
-  LoveC_Colorf colorText = {
-    .r = 0.0,
-    .g = 0.0,
-    .b = 0.0,
-    .a = 1.0,
-  };
-
-  LoveC_Font_ColoredString text = {
-    .str = strdup("But it's love."),
-    .color = colorText,
-  };
-
-  LoveC_Font_ColoredString texts[2];
-  texts[0] = text;
-  texts[1].str = NULL;
-
-  int cellSize = 5;
-  int cellDrawSize = cellSize - 1;
-  int width = love_graphics_getWidth(graphics);
-  int height = love_graphics_getHeight(graphics);
-  int cellsX = width / cellSize;
-  int cellsY = height / cellSize;
-
-  int i, j;
-  char** cells = malloc(sizeof(char*)*cellsY);
-  char** nextcells = malloc(sizeof(char*)*cellsY);
-  for (i = 0; i < cellsY; i++) {
-    cells[i] = malloc(sizeof(char)*cellsX);
-    nextcells[i] = malloc(sizeof(char)*cellsX);
-    memset(cells[i], '\0', cellsX);
-    memset(nextcells[i], '\0', cellsX);
-  }
-
-  int x, y, dx, dy;
-
-  for (y = 0; y < cellsY; y++) {
-    for (x = 0; x < cellsX; x++) {
-      cells[y][x] = rand() % 2;
-    }
-  }
-
-  i = 0;
-  while (1) {
-    if (!love_event_pump(&error)) {
-      printf("Error love_event_pump: %s\n", error);
-      free(error);
-      return LOVE_C_FALSE;
-    }
-
-    LoveC_Event_MessageRef ev;
-    if (love_event_poll(&ev)) {
-      const char* name = love_Event_Message_getName(ev);
-      if (strcmp(name, "quit") == 0) {
-        printf("Quitting\n");
-        goto quit;
-      }
-    }
-    if (i > 10) {
-      ev = love_Event_Message_construct("quit", NULL, 0);
-      love_event_push(ev);
-    }
-
-    for (y = 0; y < cellsY; y++) {
-      for (x = 0; x < cellsX; x++) {
-        int neighborCount = 0;
-
-        for (dy = -1; dy <= 1; dy++) {
-          for (dx = -1; dx <= 1; dx++) {
-            if (!(dx == 0 && dy == 0)) {
-              if (y + dy >= 0 && y + dy < cellsY) {
-                if (x + dx >= 0 && x + dx < cellsX) {
-                  if (cells[y+dy][x+dx] == 1) {
-                    neighborCount++;
-                  }
-                }
-              }
-            }
-          }
-        }
-
-        if (neighborCount == 3 || (cells[y][x] == 1 && neighborCount == 2)) {
-          nextcells[y][x] = 1;
-        } else {
-          nextcells[y][x] = 0;
-        }
-      }
-    }
-
-    for (j = 0; j < cellsY; j++) {
-      memcpy(cells[j], nextcells[j], cellsX);
-    }
-
-    if (!love_graphics_clear(graphics, (const LoveC_Colorf**)colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
-      printf("Error love_graphics_clear: %s\n", error);
-      free(error);
-      return LOVE_C_FALSE;
-    }
-
-    love_graphics_discard(graphics, discards, LOVE_C_TRUE);
-
-    for (y = 0; y < cellsY; y++) {
-      for (x = 0; x < cellsX; x++) {
-        if (cells[y][x] == 1) {
-          love_graphics_setColor(graphics, &colorCell);
-        } else {
-          love_graphics_setColor(graphics, &colorBox);
-        }
-        if (!love_graphics_rectangle(graphics, DRAW_FILL, x * cellSize, y * cellSize, cellDrawSize, cellDrawSize, 0.0, 0.0, LOVE_C_NIL, &error)) {
-          printf("Error love_graphics_rectangle: %s\n", error);
-          free(error);
-          return LOVE_C_FALSE;
-        }
-      }
-    }
-
-    LoveC_Matrix4 pos;
-    love_Matrix4_setTranslation(&pos, 400, 300);
-
-    love_graphics_setColor(graphics, &colorText);
-    if (!love_graphics_print(graphics, texts, &theFont, &pos, &error)) {
-      printf("Error love_graphics_print: %s\n", error);
-      free(error);
-      return LOVE_C_FALSE;
-    }
-
-    if (!love_graphics_present(graphics, &error)) {
-      printf("Error love_graphics_present: %s\n", error);
-      free(error);
-      return LOVE_C_FALSE;
-    }
-
-    i++;
-  }
-
-quit:
-  free(colors);
-  free(discards);
-
+int nogame() {
   return LOVE_C_TRUE;
 }
 
@@ -439,15 +111,7 @@ int main(int argc, char *argv[]) {
 
   printf("Hello, world! %s\n", love_c_version());
 
-  if (!test_filesystem(argv[0])) {
-    return 1;
-  }
-
-  if (!test_window()) {
-    return 1;
-  }
-
-  if (!test_graphics()) {
+  if (!nogame()) {
     return 1;
   }
 
