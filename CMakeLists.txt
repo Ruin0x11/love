@@ -871,6 +871,7 @@ set(LOVE_SRC_MODULE_PHYSICS_ROOT
 	src/modules/physics/Joint.h
 	src/modules/physics/Shape.cpp
 	src/modules/physics/Shape.h
+	src/modules/physics/c_Body.h
 )
 
 set(LOVE_SRC_MODULE_PHYSICS_BOX2D
@@ -918,6 +919,29 @@ set(LOVE_SRC_MODULE_PHYSICS_BOX2D
 	src/modules/physics/box2d/WheelJoint.h
 	src/modules/physics/box2d/World.cpp
 	src/modules/physics/box2d/World.h
+	src/modules/physics/box2d/c_Body.h
+	src/modules/physics/box2d/c_ChainShape.h
+	src/modules/physics/box2d/c_CircleShape.h
+	src/modules/physics/box2d/c_Contact.h
+	src/modules/physics/box2d/c_DistanceJoint.h
+	src/modules/physics/box2d/c_EdgeShape.h
+	src/modules/physics/box2d/c_Fixture.h
+	src/modules/physics/box2d/c_FrictionJoint.h
+	src/modules/physics/box2d/c_GearJoint.h
+	src/modules/physics/box2d/c_Joint.h
+	src/modules/physics/box2d/c_MotorJoint.h
+	src/modules/physics/box2d/c_MouseJoint.h
+	src/modules/physics/box2d/c_Physics.cpp
+	src/modules/physics/box2d/c_Physics.h
+	src/modules/physics/box2d/c_PolygonShape.h
+	src/modules/physics/box2d/c_PrismaticJoint.h
+	src/modules/physics/box2d/c_PulleyJoint.h
+	src/modules/physics/box2d/c_RevoluteJoint.h
+	src/modules/physics/box2d/c_RopeJoint.h
+	src/modules/physics/box2d/c_Shape.h
+	src/modules/physics/box2d/c_WeldJoint.h
+	src/modules/physics/box2d/c_WheelJoint.h
+	src/modules/physics/box2d/c_World.h
 	src/modules/physics/box2d/wrap_Body.cpp
 	src/modules/physics/box2d/wrap_Body.h
 	src/modules/physics/box2d/wrap_ChainShape.cpp

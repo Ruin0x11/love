@@ -466,7 +466,18 @@ int w_newMotorJoint(lua_State *L)
 
 int w_getDistance(lua_State *L)
 {
-	return instance()->getDistance(L);
+  Fixture *fixtureA = luax_checktype<Fixture>(L, 1);
+  Fixture *fixtureB = luax_checktype<Fixture>(L, 2);
+
+  float distance, ax, ay, bx, by;
+  luax_catchexcept(L, [&](){ distance = instance()->getDistance(fixtureA, fixtureB, ax, ay, bx, by); });
+
+  lua_pushnumber(L, distance);
+  lua_pushnumber(L, ax);
+  lua_pushnumber(L, ay);
+  lua_pushnumber(L, bx);
+  lua_pushnumber(L, by);
+  return 5;
 }
 
 int w_setMeter(lua_State *L)

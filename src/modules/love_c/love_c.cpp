@@ -8,6 +8,7 @@
 #include "modules/event/c_Event.h"
 #include "modules/data/c_DataModule.h"
 #include "modules/timer/c_Timer.h"
+#include "modules/physics/box2d/c_Physics.h"
 
 #include "love_c.h"
 
@@ -37,6 +38,10 @@ LoveC_Bool love_c_init(char** error) {
   }
 
   if (!love_timer_registerModule(error)) {
+    return false;
+  }
+
+  if (!love_physics_registerModule(error)) {
     return false;
   }
 

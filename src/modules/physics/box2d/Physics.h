@@ -286,10 +286,14 @@ public:
 	 * Calculates the distance between two Fixtures.
 	 * @param fixtureA The first Fixture.
 	 * @param fixtureB The sceond Fixture.
+	 * @param ax X coordinate of first closest point.
+	 * @param ay Y coordinate of first closest point.
+	 * @param bx X coordinate of second closest point.
+	 * @param by Y coordinate of second closest point.
 	 * @return The distance between them, and the two points closest
 	 *         to each other.
 	 **/
-	int getDistance(lua_State *L);
+	float getDistance(Fixture *fixtureA, Fixture *fixtureB, float& ax, float& ay, float& bx, float& by);
 
 	/**
 	 * Sets the number of pixels in one meter.
