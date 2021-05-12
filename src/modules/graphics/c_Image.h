@@ -11,7 +11,6 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-
 LOVE_C_DEFINE_OPAQUE_TYPE(Graphics_Image);
 LOVE_C_DEFINE_OPAQUE_TYPE(Graphics_Image_Slices);
 
@@ -37,6 +36,9 @@ LOVE_EXPORT int love_Graphics_Image_Slices_getSliceCount(LoveC_Graphics_Image_Sl
 LOVE_EXPORT int love_Graphics_Image_Slices_getMipmapCount(LoveC_Graphics_Image_SlicesRef ref);
 LOVE_EXPORT LoveC_Graphics_Image_MipmapsType love_Graphics_Image_Slices_validate(LoveC_Graphics_Image_SlicesRef ref);
 LOVE_EXPORT LoveC_Texture_TextureType love_Graphics_Image_Slices_getTextureType(LoveC_Graphics_Image_SlicesRef ref);
+
+LOVE_EXPORT float love_Graphics_Image_getWidth(LoveC_Graphics_ImageRef ref);
+LOVE_EXPORT float love_Graphics_Image_getHeight(LoveC_Graphics_ImageRef ref);
 
 LOVE_C_EXTERN_C_END
 

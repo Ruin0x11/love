@@ -66,3 +66,12 @@ LoveC_Texture_TextureType love_Graphics_Image_Slices_getTextureType(LoveC_Graphi
   auto type = unwrap<Image::Slices>(ref)->getTextureType();
   return static_cast<LoveC_Texture_TextureType>(type);
 }
+
+
+float love_Graphics_Image_getWidth(LoveC_Graphics_ImageRef ref) {
+  return unwrap<Image>(ref)->getWidth();
+}
+
+float love_Graphics_Image_getHeight(LoveC_Graphics_ImageRef ref) {
+  return unwrap<Image>(ref)->getHeight();
+}

@@ -240,7 +240,7 @@ typedef struct LoveC_Graphics_Stats
 /* LOVE_EXPORT LoveC_Bool love_graphics_setMode(int width, int height, const LoveC_Graphics_GraphicsSettings* settingsOpt, char** outError); */
 
 LOVE_EXPORT void love_graphics_reset();
-LOVE_EXPORT LoveC_Bool love_graphics_clear(const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError);
+LOVE_EXPORT LoveC_Bool love_graphics_clear(const LoveC_Colorf* colors, LoveC_SizeT colorsLength, int stencilOpt, double depthOpt, char** outError);
 LOVE_EXPORT void love_graphics_discard(LoveC_Bool* colorbuffers, LoveC_Bool depthstencil);
 LOVE_EXPORT LoveC_Bool love_graphics_present(char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_isCreated();

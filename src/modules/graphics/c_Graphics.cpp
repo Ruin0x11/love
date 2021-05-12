@@ -22,7 +22,7 @@ void love_graphics_reset() {
   instance()->reset();
 }
 
-LoveC_Bool love_graphics_clear(const LoveC_Colorf** colors, int stencilOpt, double depthOpt, char** outError) {
+LoveC_Bool love_graphics_clear(const LoveC_Colorf* colors, LoveC_SizeT colorsLength, int stencilOpt, double depthOpt, char** outError) {
   OptionalColorf color(Colorf(0.0f, 0.0f, 0.0f, 0.0f));
   std::vector<OptionalColorf> colors_;
 
@@ -30,9 +30,9 @@ LoveC_Bool love_graphics_clear(const LoveC_Colorf** colors, int stencilOpt, doub
   OptionalDouble depth(1.0);
 
   if (colors != nullptr) {
-    int i;
-    for (i = 0; colors[i]; i++) {
-      colors_.emplace_back(Colorf(colors[i]->r, colors[i]->g, colors[i]->b, colors[i]->a));
+    size_t i;
+    for (i = 0; i < colorsLength; i++) {
+      colors_.emplace_back(Colorf(colors[i].r, colors[i].g, colors[i].b, colors[i].a));
     }
   }
 

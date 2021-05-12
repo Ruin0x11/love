@@ -15,6 +15,7 @@
 #include "../modules/filesystem/c_Filesystem.h"
 #include "../modules/window/c_Window.h"
 #include "../modules/graphics/c_Graphics.h"
+#include "../modules/graphics/c_Image.h"
 #include "../modules/font/c_Font.h"
 #include "../modules/event/c_Event.h"
 #include "../modules/image/c_Image.h"
@@ -44,7 +45,7 @@ int load_default_font(char** outError) {
   printf("FileData size: %d\n", love_Data_getSize((LoveC_DataRef)fileData));
 
   LoveC_Font_RasterizerRef rasterizer = NULL;
-  result = love_font_newTrueTypeRasterizer(fileData, 30, 1.0, HINTING_NORMAL, &rasterizer, outError);
+  result = love_font_newTrueTypeRasterizer(fileData, 12, 1.0, HINTING_NORMAL, &rasterizer, outError);
   love_Object_retain((LoveC_ObjectRef)fileData);
   if (!result) {
     return LOVE_C_FALSE;
@@ -210,19 +211,15 @@ static LoveC_Graphics_ImageRef img_cloud_1;
 static LoveC_Graphics_ImageRef img_cloud_2;
 static LoveC_Graphics_ImageRef img_cloud_3;
 static LoveC_Graphics_ImageRef img_cloud_4;
+static LoveC_Graphics_ImageRef cloud_images[4];
 
 static LoveC_Physics_WorldRef world;
 
-int create_world(char** outError) {
-  int wx = love_graphics_getWidth();
-  int wy = love_graphics_getHeight();
-
-  if (!love_physics_newWorld(0, 9.81 * 64, LOVE_C_FALSE, &world, outError)) {
-    return LOVE_C_FALSE;
-  }
-
-  return LOVE_C_TRUE;
-}
+#define STEP (1.0f/20.0f)
+float g_t = 0.0f;
+float g_step = 0.0f;
+int g_frame_count = 0;
+int g_step_count = 0;
 
 int load_image(const char* bytes, LoveC_Graphics_Image_Settings* settings, LoveC_Graphics_ImageRef* outImage, char** outError) {
   char* decodedData;
@@ -256,11 +253,93 @@ int load_image(const char* bytes, LoveC_Graphics_Image_Settings* settings, LoveC
   return LOVE_C_TRUE;
 }
 
-#define STEP (1.0f/20.0f)
-float g_t = 0.0f;
-float g_step = 0.0f;
-int g_frame_count = 0;
-int g_step_count = 0;
+typedef struct CloudTrack {
+  int x;
+  int y;
+  int initial_offset;
+  int h_spacing;
+  LoveC_Graphics_ImageRef img;
+  int w;
+  float speed;
+  unsigned int count;
+  unsigned int initial_img;
+} CloudTrack;
+
+void nogame_CloudTrack_init(CloudTrack* cloudTrack, float x, float y, float offset, float speed, LoveC_Graphics_ImageRef img) {
+  cloudTrack->x = x;
+  cloudTrack->y = y;
+  cloudTrack->initial_offset = offset;
+  cloudTrack->h_spacing = 50;
+  cloudTrack->img = img;
+  cloudTrack->w = cloudTrack->h_spacing + (int)love_Graphics_Image_getWidth(cloudTrack->img);
+  cloudTrack->speed = speed;
+  cloudTrack->count = love_graphics_getWidth() / cloudTrack->w + 2;
+  cloudTrack->initial_img = rand() % 4;
+}
+
+int nogame_CloudTrack_draw(const CloudTrack* cloudTrack, char** outError) {
+  int abs_offset = (cloudTrack->initial_offset + (cloudTrack->speed * g_t));
+  int offset = abs_offset % cloudTrack->w;
+
+  static LoveC_Colorf color = {
+    .r = 1.0f,
+    .g = 1.0f,
+    .b = 1.0f,
+    .a = 0.3f,
+  };
+  love_graphics_setColor(&color);
+
+  LoveC_Matrix4 pos;
+
+  for (int i = 0; i < cloudTrack->count; i++) {
+    float x = cloudTrack->x + i * (love_Graphics_Image_getWidth(cloudTrack->img) + cloudTrack->h_spacing) + offset - cloudTrack->w;
+    float y = cloudTrack->y;
+    unsigned int img_no = abs_offset / cloudTrack->w;
+    LoveC_Graphics_ImageRef img = cloud_images[(cloudTrack->initial_img + i - img_no) % 4];
+
+    love_Matrix4_setTranslation(&pos, x, y);
+    if (!love_graphics_draw((LoveC_DrawableRef)img, &pos, outError)) {
+      return LOVE_C_FALSE;
+    }
+  }
+
+  return LOVE_C_TRUE;
+}
+
+typedef struct Clouds {
+  CloudTrack* tracks;
+  size_t max;
+} Clouds;
+
+static Clouds clouds;
+
+int nogame_Clouds_draw(const Clouds* clouds, char** outError) {
+  for (int i = 0; i < clouds->max; i++) {
+    if (!nogame_CloudTrack_draw(&clouds->tracks[i], outError)) {
+      return LOVE_C_FALSE;
+    }
+  }
+  return LOVE_C_TRUE;
+}
+
+int nogame_Clouds_init(Clouds* clouds) {
+  int layer_height = 100;
+  int max = love_graphics_getHeight() / layer_height;
+
+  clouds->max = max;
+  clouds->tracks = (CloudTrack*)malloc(clouds->max * sizeof(CloudTrack));
+  if (!clouds->tracks) {
+    printf("Error nogame_Clouds_init: out of memory\n");
+    return LOVE_C_FALSE;
+  }
+
+  for (int i = 0; i < clouds->max; i++) {
+    int w = love_Graphics_Image_getWidth(img_cloud_1) / 2 * i;
+    nogame_CloudTrack_init(&clouds->tracks[i], 0, 20 + i * layer_height, w, 40, img_cloud_1);
+  }
+
+  return LOVE_C_TRUE;
+}
 
 int nogame_update(float dt, char** error) {
   g_t += dt;
@@ -274,6 +353,11 @@ int nogame_update(float dt, char** error) {
 }
 
 int nogame_draw(char** outError) {
+  if (!nogame_Clouds_draw(&clouds, outError)) {
+    printf("Error nogame_Clouds_draw: %s\n", *outError);
+    return LOVE_C_FALSE;
+  }
+
   if (DEBUG) {
     static LoveC_Colorf color = {
       .r = 0.0f,
@@ -283,9 +367,9 @@ int nogame_draw(char** outError) {
     };
 
     static LoveC_Font_ColoredString texts[1];
-    texts[1].color = color;
+    texts[0].color = color;
     char buf[256];
-    texts[1].str = buf;
+    texts[0].str = buf;
 
     static LoveC_Matrix4 pos;
 
@@ -326,6 +410,21 @@ int nogame_draw(char** outError) {
   }
 
   g_frame_count += 1;
+
+  return LOVE_C_TRUE;
+}
+
+int create_world(char** outError) {
+  int wx = love_graphics_getWidth();
+  int wy = love_graphics_getHeight();
+
+  if (!love_physics_newWorld(0, 9.81 * 64, LOVE_C_FALSE, &world, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  if (!nogame_Clouds_init(&clouds)) {
+    return LOVE_C_FALSE;
+  }
 
   return LOVE_C_TRUE;
 }
@@ -394,16 +493,17 @@ int nogame() {
     LOAD_IMAGE(img_cloud_4, BG_CLOUD_4_PNG);
   }
 
+  cloud_images[0] = img_cloud_1;
+  cloud_images[1] = img_cloud_2;
+  cloud_images[2] = img_cloud_3;
+  cloud_images[3] = img_cloud_4;
+
   if (!create_world(&error)) {
     return LOVE_C_FALSE;
   }
 
-  LoveC_Colorf **colors = malloc(sizeof(LoveC_Colorf*)*20);
-  colors[0] = malloc(sizeof(LoveC_Colorf));
-  colors[0]->r = 1.0f;
-  colors[0]->g = 1.0f;
-  colors[0]->b = 1.0f;
-  colors[1] = NULL;
+  LoveC_Colorf colors[1];
+  colors[0] = bg;
 
   LoveC_Bool *discards = malloc(sizeof(LoveC_Bool)*20);
   discards[0] = LOVE_C_TRUE;
@@ -435,7 +535,7 @@ int nogame() {
 
     if (love_graphics_isActive()) {
       love_graphics_origin();
-      if (!love_graphics_clear((const LoveC_Colorf**)colors, LOVE_C_NIL, LOVE_C_NIL, &error)) {
+      if (!love_graphics_clear(colors, 1, LOVE_C_NIL, LOVE_C_NIL, &error)) {
         printf("Error love_graphics_clear: %s\n", error);
         free(error);
         return LOVE_C_FALSE;
