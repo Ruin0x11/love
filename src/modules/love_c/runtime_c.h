@@ -20,7 +20,7 @@ namespace love
 namespace love_c
 {
 
-LoveC_Bool register_module(const WrappedModule& m, char** outError);
+LoveC_Result register_module(const WrappedModule& m, char** outError);
 
 }
 }

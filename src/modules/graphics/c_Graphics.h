@@ -350,6 +350,8 @@ LOVE_EXPORT void love_graphics_origin();
 LOVE_EXPORT void love_graphics_transformPoint(const LoveC_Vector2* p, LoveC_Vector2* outPoint);
 LOVE_EXPORT void love_graphics_inverseTransformPoint(const LoveC_Vector2* p, LoveC_Vector2* outPoint);
 
+LOVE_EXPORT void love_graphics_setGammaCorrect(LoveC_Bool gammacorrect);
+
 LOVE_EXPORT LoveC_Bool love_graphics_registerModule(char** outError);
 
 LOVE_C_EXTERN_C_END

@@ -816,21 +816,23 @@ void love_graphics_getStats(LoveC_Graphics_Stats* outStats) {
   outStats->textureMemory = stats.textureMemory;
 }
 
-Matrix4 convertMatrix4(const LoveC_Matrix4* matrixOpt) {
+static Matrix4 defaultMatrix(0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+
+const Matrix4* convertMatrix4(const LoveC_Matrix4* matrixOpt) {
   if (matrixOpt != nullptr) {
-    return std::move(Matrix4(matrixOpt->elements));
+    return unwrap<const Matrix4>(matrixOpt);
   } else {
-    return std::move(Matrix4(0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0));
+    return &defaultMatrix;
   }
 }
 
 LoveC_Bool love_graphics_draw(LoveC_DrawableRef drawable, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto drawable_ = unwrap<Drawable>(drawable);
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
-    instance()->draw(drawable_, m);
+    instance()->draw(drawable_, *m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -843,10 +845,10 @@ LoveC_Bool love_graphics_draw__texture(LoveC_TextureRef texture, LoveC_QuadRef q
   auto texture_ = unwrap<Texture>(texture);
   auto quad_ = unwrap<Quad>(quad);
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
-    instance()->draw(texture_, quad_, m);
+    instance()->draw(texture_, quad_, *m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -858,10 +860,10 @@ LoveC_Bool love_graphics_draw__texture(LoveC_TextureRef texture, LoveC_QuadRef q
 LoveC_Bool love_graphics_drawLayer(LoveC_TextureRef texture, int layer, const LoveC_Matrix4* matrixOpt, char** outError) {
   auto texture_ = unwrap<Texture>(texture);
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
-    instance()->drawLayer(texture_, layer, m);
+    instance()->drawLayer(texture_, layer, *m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -874,10 +876,10 @@ LoveC_Bool love_graphics_drawLayer__quad(LoveC_TextureRef texture, int layer, Lo
   auto texture_ = unwrap<Texture>(texture);
   auto quad_ = unwrap<Quad>(quad);
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
-    instance()->drawLayer(texture_, layer, quad_, m);
+    instance()->drawLayer(texture_, layer, quad_, *m);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -889,10 +891,10 @@ LoveC_Bool love_graphics_drawLayer__quad(LoveC_TextureRef texture, int layer, Lo
 LoveC_Bool love_graphics_drawInstanced(LoveC_MeshRef mesh, const LoveC_Matrix4* matrixOpt, int instancecount, char** outError) {
   auto mesh_ = unwrap<Mesh>(mesh);
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
-    instance()->drawInstanced(mesh_, m, instancecount);
+    instance()->drawInstanced(mesh_, *m, instancecount);
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
     return false;
@@ -925,14 +927,14 @@ LoveC_Bool love_graphics_print(const LoveC_Font_ColoredString* strs, LoveC_FontR
     strs_.push_back(convertColoredString(strs));
   }
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
     if (fontOpt != nullptr) {
       auto font_ = unwrap<Font>(*fontOpt);
-      instance()->print(strs_, font_, m);
+      instance()->print(strs_, font_, *m);
     } else {
-      instance()->print(strs_, m);
+      instance()->print(strs_, *m);
     }
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
@@ -956,14 +958,14 @@ LoveC_Bool love_graphics_printf(const LoveC_Font_ColoredString* strs, LoveC_Font
     strs_.push_back(convertColoredString(strs));
   }
 
-  Matrix4 m = convertMatrix4(matrixOpt);
+  const Matrix4* m = convertMatrix4(matrixOpt);
 
   try {
     if (fontOpt != nullptr) {
       auto font_ = unwrap<Font>(fontOpt);
-      instance()->printf(strs_, font_, wrap, align_, m);
+      instance()->printf(strs_, font_, wrap, align_, *m);
     } else {
-      instance()->printf(strs_, wrap, align_, m);
+      instance()->printf(strs_, wrap, align_, *m);
     }
   } catch (const std::exception& e) {
     *outError = strdup(e.what());
@@ -1143,6 +1145,11 @@ void love_graphics_inverseTransformPoint(const LoveC_Vector2* p, LoveC_Vector2* 
   auto p2 = instance()->inverseTransformPoint(*p_);
   outPoint->x = p2.x;
   outPoint->y = p2.y;
+}
+
+
+void love_graphics_setGammaCorrect(LoveC_Bool gammacorrect) {
+  love::graphics::setGammaCorrect(gammacorrect);
 }
 
 

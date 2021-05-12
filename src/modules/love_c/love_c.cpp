@@ -13,7 +13,7 @@
 
 #include "love_c.h"
 
-LoveC_Bool love_c_init(char** error) {
+LoveC_Bool love_init(char** error) {
   if (!love_filesystem_registerModule(error)) {
     return false;
   }
@@ -53,9 +53,20 @@ LoveC_Bool love_c_init(char** error) {
   return true;
 }
 
-const char *love_c_version()
-{
-	// Do not refer to love::VERSION here, the linker
-	// will patch it back up to the executable's one..
-	return LOVE_VERSION_STRING;
+const char *love_getOS() {
+#ifdef LOVE_WINDOWS_UWP
+  return "UWP";
+#elif LOVE_WINDOWS
+  return "Windows";
+#elif defined(LOVE_MACOSX)
+  return "OS X";
+#elif defined(LOVE_IOS)
+  return "iOS";
+#elif defined(LOVE_ANDROID)
+  return "Android";
+#elif defined(LOVE_LINUX)
+  return "Linux";
+#else
+  return "Unknown";
+#endif
 }

@@ -75,7 +75,7 @@ int load_default_font(char **outError) {
 int init(char *argv0) {
   char *error = NULL;
 
-  if (!love_c_init(&error)) {
+  if (!love_init(&error)) {
     printf("Error: %s\n", error);
     free(error);
     return LOVE_C_FALSE;
@@ -181,6 +181,14 @@ int init(char *argv0) {
   settings.x = 0;
   settings.y = 0;
 
+  settings.resizable = LOVE_C_TRUE;
+  settings.highdpi = LOVE_C_TRUE;
+  love_graphics_setGammaCorrect(LOVE_C_TRUE);
+
+  if (strcmp(love_getOS(), "iOS") == 0) {
+    settings.borderless = LOVE_C_TRUE;
+  }
+
   if (!love_window_setMode(800, 600, &settings, &error)) {
     printf("Error initializing window: %s\n", error);
     return LOVE_C_FALSE;
@@ -194,33 +202,6 @@ int init(char *argv0) {
 
   return LOVE_C_TRUE;
 }
-
-/* BG_CLOUD_1_PNG = */
-/*   BG_CLOUD_1_PNG_2X = */
-/*   BG_CLOUD_2_PNG = */
-/*   BG_CLOUD_2_PNG_2X = */
-/*   BG_CLOUD_3_PNG_2X = */
-/*   CLOUD_3_PNG_2X = */
-/*   CLOUD_4_PNG = */
-/*   CLOUD_4_PNG_2X = */
-/*   CHAIN_A_PNG = */
-/*   CHAIN_A_PNG_2X = */
-/*   CHAIN_E_PNG = */
-/*   CHAIN_E_PNG_2X = */
-/*   CHAIN_G_PNG = */
-/*   CHAIN_G_PNG_2X = */
-/*   CHAIN_M_PNG = */
-/*   CHAIN_M_PNG_2X = */
-/*   CHAIN_N_PNG = */
-/*   CHAIN_N_PNG_2X = */
-/*   CHAIN_O_PNG = */
-/*   CHAIN_O_PNG_2X = */
-/*   CHAIN_SQUARE_PNG = */
-/*   CHAIN_SQUARE_PNG_2X = */
-/*   DUCKLOON_BLINK_PNG = */
-/*   DUCKLOON_BLINK_PNG_2X = */
-/*   DUCKLOON_NORMAL_PNG = */
-/*   DUCKLOON_NORMAL_PNG_2X = */
 
 static LoveC_Graphics_ImageRef img_duckloon_normal;
 static LoveC_Graphics_ImageRef img_duckloon_blink;
@@ -239,50 +220,13 @@ static LoveC_Graphics_ImageRef img_cloud_3;
 static LoveC_Graphics_ImageRef img_cloud_4;
 static LoveC_Graphics_ImageRef cloud_images[4];
 
-static LoveC_Physics_WorldRef world;
+static LoveC_Physics_WorldRef world = NULL;
 
 #define STEP (1.0f / 20.0f)
 float g_t = 0.0f;
 float g_step = 0.0f;
 int g_frame_count = 0;
 int g_step_count = 0;
-
-int load_image(const char *bytes, LoveC_Graphics_Image_Settings *settings,
-               LoveC_Graphics_ImageRef *outImage, char **outError) {
-  char *decodedData;
-  LoveC_SizeT decodedDataSize;
-  if (!love_data_decode(ENCODE_BASE64, bytes, strlen(bytes), &decodedData,
-                        &decodedDataSize, outError)) {
-    return LOVE_C_FALSE;
-  }
-
-  LoveC_DataRef data;
-  if (!love_data_newByteData__data(decodedData, decodedDataSize,
-                                   (LoveC_Data_ByteDataRef *)&data, outError)) {
-    return LOVE_C_FALSE;
-  }
-
-  LoveC_Image_ImageDataRef imageData;
-
-  int result = love_image_newImageData__Data(data, &imageData, outError);
-  love_Object_release((LoveC_ObjectRef)data);
-  if (!result)
-    return LOVE_C_FALSE;
-
-  LoveC_Graphics_Image_SlicesRef slices =
-      love_Graphics_Image_Slices_construct(TEXTURE_2D);
-
-  love_Graphics_Image_Slices_set(slices, 0, 0,
-                                 (LoveC_Image_ImageDataBaseRef)imageData);
-  love_Object_release((LoveC_ObjectRef)imageData);
-
-  result = love_graphics_newImage(slices, settings, outImage, outError);
-  love_Graphics_Image_Slices_delete(slices);
-  if (!result)
-    return LOVE_C_FALSE;
-
-  return LOVE_C_TRUE;
-}
 
 typedef struct State {
   float t0;
@@ -366,10 +310,21 @@ typedef struct Duckloon {
   State state;
 } Duckloon;
 
-static Duckloon duckloon;
+static Duckloon duckloon = {
+  .body = NULL,
+  .shape = NULL,
+  .fixture = NULL,
+  .img = NULL,
+  .pin = NULL,
+};
 
 int nogame_Duckloon_init(Duckloon *duckloon, LoveC_Physics_WorldRef world,
                          float x, float y, char **outError) {
+  if (duckloon->body != NULL) {
+    love_Object_release((LoveC_ObjectRef)duckloon->body);
+    duckloon->body = NULL;
+  }
+
   if (!love_physics_newBody(world, x, y, BODY_DYNAMIC, &duckloon->body,
                             outError)) {
     return LOVE_C_FALSE;
@@ -378,8 +333,13 @@ int nogame_Duckloon_init(Duckloon *duckloon, LoveC_Physics_WorldRef world,
   love_physics_Body_setLinearDamping(duckloon->body, 0.8f);
   love_physics_Body_setAngularDamping(duckloon->body, 0.8f);
 
-  float xs[3] = {-55.0f, 0.0f, 55.0f};
-  float ys[3] = {-60.0f, 90.0f, -60.0f};
+  static float xs[3] = {-55.0f, 0.0f, 55.0f};
+  static float ys[3] = {-60.0f, 90.0f, -60.0f};
+
+  if (duckloon->shape != NULL) {
+    love_Object_release((LoveC_ObjectRef)duckloon->shape);
+    duckloon->shape = NULL;
+  }
 
   LoveC_Physics_PolygonShapeRef shape;
 
@@ -388,6 +348,11 @@ int nogame_Duckloon_init(Duckloon *duckloon, LoveC_Physics_WorldRef world,
   }
 
   duckloon->shape = (LoveC_Physics_ShapeRef)shape;
+
+  if (duckloon->fixture != NULL) {
+    love_Object_release((LoveC_ObjectRef)duckloon->fixture);
+    duckloon->fixture = NULL;
+  }
 
   if (!love_physics_newFixture(duckloon->body, duckloon->shape, 1.0,
                                &duckloon->fixture, outError)) {
@@ -399,6 +364,11 @@ int nogame_Duckloon_init(Duckloon *duckloon, LoveC_Physics_WorldRef world,
   duckloon->img = img_duckloon_normal;
 
   nogame_Blink_init(&duckloon->blink);
+
+  if (duckloon->pin != NULL) {
+    love_Object_release((LoveC_ObjectRef)duckloon->pin);
+    duckloon->pin = NULL;
+  }
 
   LoveC_Physics_MouseJointRef joint;
 
@@ -488,6 +458,24 @@ static Chain chain;
 int nogame_Chain_init(Chain *chain, LoveC_Physics_WorldRef world, float x,
                       float y, const char *str, Duckloon *duckloon,
                       char **outError) {
+  if (chain->links != NULL) {
+    for (int i = 0; i < chain->len; i++) {
+      Chain_Link *link = &chain->links[i];
+      love_Object_release((LoveC_ObjectRef)link->body);
+      love_Object_release((LoveC_ObjectRef)link->shape);
+      love_Object_release((LoveC_ObjectRef)link->fixture);
+      love_Object_release((LoveC_ObjectRef)link->joint);
+      if (link->join2 != NULL) {
+        love_Object_release((LoveC_ObjectRef)link->join2);
+      }
+    }
+    free(chain->links);
+    chain->len = 0;
+  }
+  if (chain->str != NULL) {
+    free(chain->str);
+  }
+
   int len = strlen(str);
   chain->links = (Chain_Link *)malloc(len * sizeof(Chain_Link));
   chain->str = strdup(str);
@@ -752,6 +740,11 @@ int nogame_Clouds_init(Clouds *clouds) {
   int layer_height = 100;
   int max = love_graphics_getHeight() / layer_height;
 
+  if (clouds->tracks != NULL) {
+    free(clouds->tracks);
+    clouds->tracks = NULL;
+  }
+
   clouds->max = max;
   clouds->tracks = (CloudTrack *)malloc(clouds->max * sizeof(CloudTrack));
   if (!clouds->tracks) {
@@ -859,6 +852,11 @@ int create_world(char **outError) {
   int wx = love_graphics_getWidth();
   int wy = love_graphics_getHeight();
 
+  if (world != NULL) {
+    love_Object_release((LoveC_ObjectRef) world);
+    world = NULL;
+  }
+
   if (!love_physics_newWorld(0, 9.81 * 64, LOVE_C_TRUE, &world, outError)) {
     return LOVE_C_FALSE;
   }
@@ -878,6 +876,43 @@ int create_world(char **outError) {
   if (!nogame_Clouds_init(&clouds)) {
     return LOVE_C_FALSE;
   }
+
+  return LOVE_C_TRUE;
+}
+
+int load_image(const char *bytes, LoveC_Graphics_Image_Settings *settings,
+               LoveC_Graphics_ImageRef *outImage, char **outError) {
+  char *decodedData;
+  LoveC_SizeT decodedDataSize;
+  if (!love_data_decode(ENCODE_BASE64, bytes, strlen(bytes), &decodedData,
+                        &decodedDataSize, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  LoveC_DataRef data;
+  if (!love_data_newByteData__data(decodedData, decodedDataSize,
+                                   (LoveC_Data_ByteDataRef *)&data, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  LoveC_Image_ImageDataRef imageData;
+
+  int result = love_image_newImageData__Data(data, &imageData, outError);
+  love_Object_release((LoveC_ObjectRef)data);
+  if (!result)
+    return LOVE_C_FALSE;
+
+  LoveC_Graphics_Image_SlicesRef slices =
+      love_Graphics_Image_Slices_construct(TEXTURE_2D);
+
+  love_Graphics_Image_Slices_set(slices, 0, 0,
+                                 (LoveC_Image_ImageDataBaseRef)imageData);
+  love_Object_release((LoveC_ObjectRef)imageData);
+
+  result = love_graphics_newImage(slices, settings, outImage, outError);
+  love_Graphics_Image_Slices_delete(slices);
+  if (!result)
+    return LOVE_C_FALSE;
 
   return LOVE_C_TRUE;
 }
@@ -1029,6 +1064,12 @@ int nogame() {
         return LOVE_C_TRUE;
       } else if (strcmp(name, "mousepressed") == 0) {
         nogame_mousepressed(mes);
+      } else if (strcmp(name, "resize") == 0) {
+        if (!create_world(&error)) {
+          printf("Error create_world: %s\n", error);
+          free(error);
+          return LOVE_C_FALSE;
+        }
       }
     }
 
@@ -1073,7 +1114,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  printf("Hello, world! %s\n", love_c_version());
+  printf("Hello, world! %s\n", love_version());
 
   if (!nogame()) {
     return 1;

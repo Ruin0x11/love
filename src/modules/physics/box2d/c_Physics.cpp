@@ -14,7 +14,7 @@ using namespace love::physics::box2d;
 #define instance() (Module::getInstance<Physics>(Module::M_PHYSICS))
 
 
-LoveC_Result love_physics_newWorld(float gx, float gy, LoveC_Bool sleep, LoveC_Physics_WorldRef* outWorld, char **outError){
+LoveC_Result love_physics_newWorld(float gx, float gy, LoveC_Bool sleep, LoveC_Physics_WorldRef* outWorld, char **outError) {
   World* world;
 
   try {
@@ -29,7 +29,7 @@ LoveC_Result love_physics_newWorld(float gx, float gy, LoveC_Bool sleep, LoveC_P
   return true;
 }
 
-LoveC_Result love_physics_newBody(LoveC_Physics_WorldRef world, float x, float y, LoveC_Physics_Body_Type btype, LoveC_Physics_BodyRef* outBody, char **outError){
+LoveC_Result love_physics_newBody(LoveC_Physics_WorldRef world, float x, float y, LoveC_Physics_Body_Type btype, LoveC_Physics_BodyRef* outBody, char **outError) {
   auto world_ = unwrap<World>(world);
   auto btype_ = static_cast<love::physics::Body::Type>(btype);
 
@@ -47,7 +47,7 @@ LoveC_Result love_physics_newBody(LoveC_Physics_WorldRef world, float x, float y
   return true;
 }
 
-LoveC_Result love_physics_newFixture(LoveC_Physics_BodyRef body, LoveC_Physics_ShapeRef shape, float density, LoveC_Physics_FixtureRef* outFixture, char** outError){
+LoveC_Result love_physics_newFixture(LoveC_Physics_BodyRef body, LoveC_Physics_ShapeRef shape, float density, LoveC_Physics_FixtureRef* outFixture, char** outError) {
   auto body_ = unwrap<Body>(body);
   auto shape_ = unwrap<Shape>(shape);
 
@@ -60,12 +60,12 @@ LoveC_Result love_physics_newFixture(LoveC_Physics_BodyRef body, LoveC_Physics_S
     return false;
   }
 
-  *outFixture = wrap<LoveC_Physics_FixtureRef>(body);
+  *outFixture = wrap<LoveC_Physics_FixtureRef>(fixture);
 
   return true;
 }
 
-LoveC_Result love_physics_newCircleShape(float x, float y, float radius, LoveC_Physics_CircleShapeRef* outCircleShape, char **outError){
+LoveC_Result love_physics_newCircleShape(float x, float y, float radius, LoveC_Physics_CircleShapeRef* outCircleShape, char **outError) {
   CircleShape* shape;
 
   try {
@@ -80,7 +80,7 @@ LoveC_Result love_physics_newCircleShape(float x, float y, float radius, LoveC_P
   return true;
 }
 
-LoveC_Result love_physics_newRectangleShape(float x, float y, float w, float h, float angle, LoveC_Physics_PolygonShapeRef* outRectangleShape, char **outError){
+LoveC_Result love_physics_newRectangleShape(float x, float y, float w, float h, float angle, LoveC_Physics_PolygonShapeRef* outRectangleShape, char **outError) {
   PolygonShape* shape;
 
   try {
@@ -95,7 +95,7 @@ LoveC_Result love_physics_newRectangleShape(float x, float y, float w, float h, 
   return true;
 }
 
-LoveC_Result love_physics_newEdgeShape(float x1, float y1, float x2, float y2, LoveC_Physics_EdgeShapeRef* outEdgeShape, char **outError){
+LoveC_Result love_physics_newEdgeShape(float x1, float y1, float x2, float y2, LoveC_Physics_EdgeShapeRef* outEdgeShape, char **outError) {
   EdgeShape* shape;
 
   try {
@@ -110,7 +110,7 @@ LoveC_Result love_physics_newEdgeShape(float x1, float y1, float x2, float y2, L
   return true;
 }
 
-LoveC_Result love_physics_newPolygonShape(float* xs, float* ys, LoveC_SizeT vertexcount, LoveC_Physics_PolygonShapeRef* outPolygonShape, char **outError){
+LoveC_Result love_physics_newPolygonShape(float* xs, float* ys, LoveC_SizeT vertexcount, LoveC_Physics_PolygonShapeRef* outPolygonShape, char **outError) {
   if (vertexcount < 3) {
     char* err = (char*)malloc(256);
     sprintf(err, "Expected a minimum of 3 vertices, got %d.", vertexcount);
@@ -148,7 +148,7 @@ LoveC_Result love_physics_newPolygonShape(float* xs, float* ys, LoveC_SizeT vert
   return true;
 }
 
-LoveC_Result love_physics_newChainShape(float* xs, float* ys, LoveC_SizeT vertexcount, LoveC_Bool loop, LoveC_Physics_ChainShapeRef* outChainShape, char **outError){
+LoveC_Result love_physics_newChainShape(float* xs, float* ys, LoveC_SizeT vertexcount, LoveC_Bool loop, LoveC_Physics_ChainShapeRef* outChainShape, char **outError) {
   b2Vec2 *vecs = new b2Vec2[vertexcount];
 
   for (size_t i = 0; i < vertexcount; i++) {
@@ -178,7 +178,7 @@ LoveC_Result love_physics_newChainShape(float* xs, float* ys, LoveC_SizeT vertex
   return true;
 }
 
-LoveC_Result love_physics_newDistanceJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float x1, float y1, float x2, float y2, LoveC_Bool collideConnected, LoveC_Physics_DistanceJointRef* outDistanceJoint, char **outError){
+LoveC_Result love_physics_newDistanceJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float x1, float y1, float x2, float y2, LoveC_Bool collideConnected, LoveC_Physics_DistanceJointRef* outDistanceJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -196,7 +196,7 @@ LoveC_Result love_physics_newDistanceJoint(LoveC_Physics_BodyRef body1, LoveC_Ph
   return true;
 }
 
-LoveC_Result love_physics_newMouseJoint(LoveC_Physics_BodyRef body, float x, float y, LoveC_Physics_MouseJointRef* outMouseJoint, char **outError){
+LoveC_Result love_physics_newMouseJoint(LoveC_Physics_BodyRef body, float x, float y, LoveC_Physics_MouseJointRef* outMouseJoint, char **outError) {
   auto body_ = unwrap<Body>(body);
 
   MouseJoint* joint;
@@ -213,7 +213,7 @@ LoveC_Result love_physics_newMouseJoint(LoveC_Physics_BodyRef body, float x, flo
   return true;
 }
 
-LoveC_Result love_physics_newRevoluteJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError){
+LoveC_Result love_physics_newRevoluteJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -231,7 +231,7 @@ LoveC_Result love_physics_newRevoluteJoint(LoveC_Physics_BodyRef body1, LoveC_Ph
   return true;
 }
 
-LoveC_Result love_physics_newRevoluteJoint__referenceAngle(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError){
+LoveC_Result love_physics_newRevoluteJoint__referenceAngle(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -249,7 +249,7 @@ LoveC_Result love_physics_newRevoluteJoint__referenceAngle(LoveC_Physics_BodyRef
   return true;
 }
 
-LoveC_Result love_physics_newPrismaticJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, float ax, float ay, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_PrismaticJointRef* outPrismaticJoint, char **outError){
+LoveC_Result love_physics_newPrismaticJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, float ax, float ay, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_PrismaticJointRef* outPrismaticJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -267,7 +267,7 @@ LoveC_Result love_physics_newPrismaticJoint(LoveC_Physics_BodyRef body1, LoveC_P
   return true;
 }
 
-LoveC_Result love_physics_newPulleyJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float gx1, float gy1, float gx2, float gy2, float x1, float y1, float x2, float y2, float ratio, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_PulleyJointRef* outPulleyJoint, char **outError){
+LoveC_Result love_physics_newPulleyJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float gx1, float gy1, float gx2, float gy2, float x1, float y1, float x2, float y2, float ratio, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_PulleyJointRef* outPulleyJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -285,7 +285,7 @@ LoveC_Result love_physics_newPulleyJoint(LoveC_Physics_BodyRef body1, LoveC_Phys
   return true;
 }
 
-LoveC_Result love_physics_newGearJoint(LoveC_Physics_JointRef joint1, LoveC_Physics_JointRef joint2, float ratio, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_GearJointRef* outGearJoint, char **outError){
+LoveC_Result love_physics_newGearJoint(LoveC_Physics_JointRef joint1, LoveC_Physics_JointRef joint2, float ratio, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_GearJointRef* outGearJoint, char **outError) {
   auto joint1_ = unwrap<Joint>(joint1);
   auto joint2_ = unwrap<Joint>(joint2);
 
@@ -303,7 +303,7 @@ LoveC_Result love_physics_newGearJoint(LoveC_Physics_JointRef joint1, LoveC_Phys
   return true;
 }
 
-LoveC_Result love_physics_newFrictionJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, LoveC_Physics_FrictionJointRef* outFrictionJoint, char **outError){
+LoveC_Result love_physics_newFrictionJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, LoveC_Physics_FrictionJointRef* outFrictionJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -321,7 +321,7 @@ LoveC_Result love_physics_newFrictionJoint(LoveC_Physics_BodyRef body1, LoveC_Ph
   return true;
 }
 
-LoveC_Result love_physics_newWeldJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_WeldJointRef* outWeldJoint, char **outError){
+LoveC_Result love_physics_newWeldJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_WeldJointRef* outWeldJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -339,7 +339,7 @@ LoveC_Result love_physics_newWeldJoint(LoveC_Physics_BodyRef body1, LoveC_Physic
   return true;
 }
 
-LoveC_Result love_physics_newWheelJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, float ax, float ay, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_WheelJointRef* outWheelJoint, char **outError){
+LoveC_Result love_physics_newWheelJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, float ax, float ay, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_WheelJointRef* outWheelJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -357,7 +357,7 @@ LoveC_Result love_physics_newWheelJoint(LoveC_Physics_BodyRef body1, LoveC_Physi
   return true;
 }
 
-LoveC_Result love_physics_newRopeJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float x1, float y1, float x2, float y2, float maxLength, LoveC_Bool collideConnected, LoveC_Physics_RopeJointRef* outRopeJoint, char **outError){
+LoveC_Result love_physics_newRopeJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float x1, float y1, float x2, float y2, float maxLength, LoveC_Bool collideConnected, LoveC_Physics_RopeJointRef* outRopeJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -375,7 +375,7 @@ LoveC_Result love_physics_newRopeJoint(LoveC_Physics_BodyRef body1, LoveC_Physic
   return true;
 }
 
-LoveC_Result love_physics_newMotorJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float correctionFactor, LoveC_Bool collideConnected, LoveC_Physics_MotorJointRef* outMotorJoint, char **outError){
+LoveC_Result love_physics_newMotorJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float correctionFactor, LoveC_Bool collideConnected, LoveC_Physics_MotorJointRef* outMotorJoint, char **outError) {
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 
@@ -393,7 +393,7 @@ LoveC_Result love_physics_newMotorJoint(LoveC_Physics_BodyRef body1, LoveC_Physi
   return true;
 }
 
-LoveC_Result love_physics_getDistance(LoveC_Physics_FixtureRef fixture1, LoveC_Physics_FixtureRef fixture2, float* outDistance, float* outAx, float* outAy, float* outBx, float* outBy, char** outError){
+LoveC_Result love_physics_getDistance(LoveC_Physics_FixtureRef fixture1, LoveC_Physics_FixtureRef fixture2, float* outDistance, float* outAx, float* outAy, float* outBx, float* outBy, char** outError) {
   Fixture *fixtureA = unwrap<Fixture>(fixture1);
   Fixture *fixtureB = unwrap<Fixture>(fixture2);
 
@@ -415,7 +415,7 @@ LoveC_Result love_physics_getDistance(LoveC_Physics_FixtureRef fixture1, LoveC_P
   return true;
 }
 
-LoveC_Result love_physics_setMeter(float meter, char** outError){
+LoveC_Result love_physics_setMeter(float meter, char** outError) {
   try {
     instance()->setMeter(meter);
   } catch (const std::exception& e) {
@@ -426,7 +426,7 @@ LoveC_Result love_physics_setMeter(float meter, char** outError){
   return true;
 }
 
-float love_physics_getMeter(){
+float love_physics_getMeter() {
   return instance()->getMeter();
 }
 

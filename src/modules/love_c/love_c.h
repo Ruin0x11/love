@@ -8,8 +8,11 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-LOVE_EXPORT LoveC_Bool love_c_init(char** error);
-LOVE_EXPORT const char *love_c_version();
+LOVE_EXPORT const char *love_version();
+LOVE_EXPORT const char *love_codename();
+
+LOVE_EXPORT LoveC_Bool love_init(char** error);
+LOVE_EXPORT const char *love_getOS();
 
 LOVE_C_EXTERN_C_END
 
