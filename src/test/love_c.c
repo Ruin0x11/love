@@ -425,6 +425,205 @@ int nogame_Duckloon_draw(const Duckloon* duckloon, char** outError) {
   return LOVE_C_TRUE;
 }
 
+void nogame_Duckloon_attachment_point(Duckloon* duckloon, float* x, float* y) {
+  love_physics_Body_getWorldPoint(duckloon->body, 4, 90, x, y);
+}
+
+typedef struct Chain_Link {
+  float x;
+  float y;
+  float radius;
+  LoveC_Graphics_ImageRef img;
+  LoveC_Physics_BodyRef body;
+  LoveC_Physics_ShapeRef shape;
+  LoveC_Physics_FixtureRef fixture;
+  State state;
+  LoveC_Physics_JointRef joint;
+  LoveC_Physics_JointRef join2;
+} Chain_Link;
+
+typedef struct Chain {
+  Chain_Link* links;
+  char* str;
+  int len;
+} Chain;
+
+static Chain chain;
+
+int nogame_Chain_init(Chain* chain, LoveC_Physics_WorldRef world, float x, float y, const char* str, Duckloon* duckloon, char** outError) {
+  int len = strlen(str);
+  chain->links = (Chain_Link*)malloc(len * sizeof(Chain_Link));
+  chain->str = strdup(str);
+  chain->len = len;
+
+  typedef struct Chain_LinkInfo { char c; float radius; LoveC_Graphics_ImageRef img; } Chain_LinkInfo;
+  static Chain_LinkInfo infos[9] = {
+    { 'n', 11, NULL },
+    { 'o', 11, NULL },
+    { 'g', 11, NULL },
+    { 'a', 11, NULL },
+    { 'm', 11, NULL },
+    { 'e', 11, NULL },
+    { ' ', 4, NULL },
+    { '#', 7, NULL },
+    { 0x0, 0, NULL }
+  };
+
+  infos[0].img = img_n;
+  infos[1].img = img_o;
+  infos[2].img = img_g;
+  infos[3].img = img_a;
+  infos[4].img = img_m;
+  infos[5].img = img_e;
+  infos[6].img = NULL;
+  infos[7].img = img_square;
+  infos[8].img = NULL;
+
+  for (int i = 0; i < len; i++) {
+    Chain_Link* prev = NULL;
+
+    if (i >= 1) {
+      prev = &chain->links[i-1];
+    }
+
+    Chain_Link* link = &chain->links[i];
+
+    link->x = x;
+    link->y = y;
+
+    Chain_LinkInfo* info = NULL;
+    for (Chain_LinkInfo *inf = infos; inf->c != 0x0; ++inf) {
+      if (inf->c == str[i]) {
+        info = inf;
+        break;
+      }
+    }
+    if (!info) {
+      *outError = strdup("Missing chain draw info");
+      return LOVE_C_FALSE;
+    }
+
+    link->radius = info->radius;
+    link->img = info->img;
+
+    if (prev != NULL) {
+      link->y = prev->y + prev->radius + link->radius;
+    }
+
+    if (!love_physics_newBody(world, link->x, link->y, BODY_DYNAMIC, &link->body, outError)) {
+      return LOVE_C_FALSE;
+    }
+
+    love_physics_Body_setLinearDamping(link->body, 0.5);
+    love_physics_Body_setAngularDamping(link->body, 0.5);
+
+    LoveC_Physics_CircleShapeRef shape;
+
+    if (!love_physics_newCircleShape(0.0f, 0.0f, link->radius, &shape, outError)) {
+      return LOVE_C_FALSE;
+    }
+
+    link->shape = (LoveC_Physics_ShapeRef)shape;
+
+    if (!love_physics_newFixture(link->body, link->shape, 0.1f / (float)(i+1), &link->fixture, outError)) {
+      return LOVE_C_FALSE;
+    }
+
+    nogame_State_init(&link->state, link->body);
+
+    LoveC_Physics_RevoluteJointRef revoluteJoint;
+
+    if (prev != NULL) {
+      float xA = link->x;
+      float yA = link->y - link->radius / 2;
+      if (!love_physics_newRevoluteJoint(link->body, prev->body, xA, yA, xA, yA, LOVE_C_FALSE, &revoluteJoint, outError)) {
+        return LOVE_C_FALSE;
+      }
+      link->joint = (LoveC_Physics_JointRef)revoluteJoint;
+
+      LoveC_Physics_RopeJointRef ropeJoint;
+
+      if (!love_physics_newRopeJoint(link->body, duckloon->body, link->x, link->y, x, y, link->y - y, LOVE_C_FALSE, &ropeJoint, outError)) {
+        return LOVE_C_FALSE;
+      }
+      link->join2 = (LoveC_Physics_JointRef)ropeJoint;
+    } else {
+      float xA = link->x;
+      float yA = link->y;
+      if (!love_physics_newRevoluteJoint(link->body, duckloon->body, xA, yA, xA, yA, LOVE_C_FALSE, &revoluteJoint, outError)) {
+        return LOVE_C_FALSE;
+      }
+      link->joint = (LoveC_Physics_JointRef)revoluteJoint;
+
+      link->join2 = NULL;
+    }
+  }
+
+  return LOVE_C_TRUE;
+}
+
+void nogame_Chain_step(Chain* chain) {
+  for (int i = 0; i < chain->len; i++) {
+    nogame_State_save(&chain->links[i].state, chain->links[i].body, g_step);
+  }
+}
+
+int nogame_Chain_draw(const Chain* chain, char** outError) {
+  LoveC_Vector2 points[32];
+  assert(chain->len < 32);
+
+  for (int i = 0; i < chain->len; i++) {
+    float x, y, _r;
+    nogame_State_get(&chain->links[i].state, g_t, &x, &y, &_r);
+    points[i].x = x;
+    points[i].y = y;
+  }
+
+  love_graphics_setLineWidth(3);
+
+  static LoveC_Colorf color = {
+    .r = 1.0f,
+    .g = 1.0f,
+    .b = 1.0f,
+    .a = 0.7f,
+  };
+  love_graphics_setColor(&color);
+
+  if (!love_graphics_polyline(points, chain->len, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  static LoveC_Colorf linkColor = {
+    .r = 1.0f,
+    .g = 1.0f,
+    .b = 1.0f,
+    .a = 1.0f,
+  };
+
+  static LoveC_Matrix4 pos;
+
+  for (int i = 0; i < chain->len; i++) {
+    Chain_Link* link = &chain->links[i];
+    if (link->img != NULL) {
+      float x, y, r;
+      nogame_State_get(&link->state, g_t, &x, &y, &r);
+      float ox = love_Graphics_Image_getWidth(link->img) / 2;
+      float oy = love_Graphics_Image_getHeight(link->img) / 2;
+      love_graphics_setColor(&linkColor);
+      love_Matrix4_setTransformation(&pos, x, y, r, 1.0f, 1.0f, ox, oy, 0.0f, 0.0f);
+      if (!love_graphics_draw((LoveC_DrawableRef)link->img, &pos, outError)) {
+        return LOVE_C_FALSE;
+      }
+    }
+  }
+
+  if (DEBUG) {
+    // TODO
+  }
+
+  return LOVE_C_TRUE;
+}
+
 typedef struct CloudTrack {
   int x;
   int y;
@@ -528,6 +727,7 @@ int nogame_update(float dt, char** outError) {
     g_step += STEP;
 
     nogame_Duckloon_step(&duckloon);
+    nogame_Chain_step(&chain);
 
     g_step_count += 1;
   }
@@ -545,6 +745,11 @@ int nogame_draw(char** outError) {
 
   if (!nogame_Duckloon_draw(&duckloon, outError)) {
     printf("Error nogame_Duckloon_draw: %s\n", *outError);
+    return LOVE_C_FALSE;
+  }
+
+  if (!nogame_Chain_draw(&chain, outError)) {
+    printf("Error nogame_Chain_draw: %s\n", *outError);
     return LOVE_C_FALSE;
   }
 
@@ -613,6 +818,13 @@ int create_world(char** outError) {
   }
 
   if (!nogame_Duckloon_init(&duckloon, world, wx / 2, wy / 2 - 100, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  float ax, ay;
+  nogame_Duckloon_attachment_point(&duckloon, &ax, &ay);
+
+  if (!nogame_Chain_init(&chain, world, ax, ay, "  n o # g a m e # ", &duckloon, outError)) {
     return LOVE_C_FALSE;
   }
 
@@ -702,6 +914,8 @@ int nogame() {
   }
 
   if (!create_world(&error)) {
+    printf("Error create_world: %s\n", error);
+    free(error);
     return LOVE_C_FALSE;
   }
 

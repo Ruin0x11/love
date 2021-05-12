@@ -213,7 +213,25 @@ LoveC_Result love_physics_newMouseJoint(LoveC_Physics_BodyRef body, float x, flo
   return true;
 }
 
-LoveC_Result love_physics_newRevoluteJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError){
+LoveC_Result love_physics_newRevoluteJoint(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError){
+  auto body1_ = unwrap<Body>(body1);
+  auto body2_ = unwrap<Body>(body2);
+
+  RevoluteJoint* joint;
+
+  try {
+    joint = instance()->newRevoluteJoint(body1_, body2_, xA, yA, xB, yB, collideConnected);
+  } catch (const std::exception& e) {
+    *outError = strdup(e.what());
+    return false;
+  }
+
+  *outRevoluteJoint = wrap<LoveC_Physics_RevoluteJointRef>(joint);
+
+  return true;
+}
+
+LoveC_Result love_physics_newRevoluteJoint__referenceAngle(LoveC_Physics_BodyRef body1, LoveC_Physics_BodyRef body2, float xA, float yA, float xB, float yB, LoveC_Bool collideConnected, float referenceAngle, LoveC_Physics_RevoluteJointRef* outRevoluteJoint, char **outError){
   auto body1_ = unwrap<Body>(body1);
   auto body2_ = unwrap<Body>(body2);
 

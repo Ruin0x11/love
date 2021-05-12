@@ -38,3 +38,19 @@ void love_physics_Body_applyForceToCenter(LoveC_Physics_BodyRef ref, float fx, f
 void love_physics_Body_applyForce(LoveC_Physics_BodyRef ref, float fx, float fy, float rx, float ry, LoveC_Bool wake) {
   unwrap<Body>(ref)->applyForce(fx, fy, rx, ry, wake);
 }
+
+void love_physics_Body_getWorldPoint(LoveC_Physics_BodyRef ref, float x, float y, float* outX, float* outY) {
+  float x_o, y_o;
+  unwrap<Body>(ref)->getWorldPoint(x, y, x_o, y_o);
+
+  *outX = x_o;
+  *outY = y_o;
+}
+
+void love_physics_Body_getWorldVector(LoveC_Physics_BodyRef ref, float x, float y, float* outX, float* outY) {
+  float x_o, y_o;
+  unwrap<Body>(ref)->getWorldVector(x, y, x_o, y_o);
+
+  *outX = x_o;
+  *outY = y_o;
+}
