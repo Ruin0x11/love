@@ -35,6 +35,7 @@ typedef struct LoveC_Window_MessageBoxData {
   char* message;
 
   char** buttons;
+  LoveC_SizeT buttonCount;
   int enterButtonIndex;
   int escapeButtonIndex;
 

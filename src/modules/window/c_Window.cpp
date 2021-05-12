@@ -313,7 +313,7 @@ int love_window_showMessageBox(const char* title, const char* message, LoveC_Win
   return instance()->showMessageBox(title_, message_, type_, attachToWindow);
 }
 
-int love_window_showMessageBox__MessageBoxData(const LoveC_Window_MessageBoxData* messageBox, int* outResult, char** outError) {
+int love_window_showMessageBox__MessageBoxData(const LoveC_Window_MessageBoxData* messageBox) {
   Window::MessageBoxData data = {};
 
   data.type = static_cast<Window::MessageBoxType>(messageBox->type);
@@ -323,7 +323,7 @@ int love_window_showMessageBox__MessageBoxData(const LoveC_Window_MessageBoxData
 
   int i;
   char** buttons = messageBox->buttons;
-  for (i = 0; buttons[i]; i++) {
+  for (i = 0; i < messageBox->buttonCount; i++) {
     std::string button_(buttons[i]);
     data.buttons.emplace_back(button_);
   }

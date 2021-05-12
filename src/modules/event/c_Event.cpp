@@ -17,7 +17,7 @@ using namespace love::event;
 
 
 LoveC_Event_MessageRef love_Event_Message_construct(const char* name, const LoveC_VariantRef* args, LoveC_Int64 argsSize) {
-  if (args == NULL) {
+  if (argsSize > 0) {
     auto message = new Message(name);
     return wrap<LoveC_Event_MessageRef>(message);
   } else {
@@ -31,11 +31,18 @@ const char *love_Event_Message_getName(LoveC_Event_MessageRef messageRef) {
   return unwrap<Message>(messageRef)->name.c_str();
 }
 
-void love_Event_Message_getArgs(LoveC_Event_MessageRef messageRef, LoveC_VariantRef* outArgs, LoveC_Int64* outSize) {
+void love_Event_Message_getArgs(LoveC_Event_MessageRef messageRef, LoveC_VariantRef** outArgs, LoveC_Int64* outSize) {
   auto message = unwrap<Message>(messageRef);
 
-  *outArgs = wrap<LoveC_VariantRef>(message->args.data());
-  *outSize = message->args.size();
+  size_t size = message->args.size();
+  LoveC_VariantRef* args = (LoveC_VariantRef*)malloc(size * sizeof(LoveC_VariantRef));
+
+  for (size_t i = 0; i < size; i++) {
+    args[i] = wrap<LoveC_VariantRef>(&message->args[i]);
+  }
+
+  *outArgs = args;
+  *outSize = size;
 }
 
 LoveC_Bool love_event_poll(LoveC_Event_MessageRef* outMessage) {

@@ -15,7 +15,7 @@ typedef struct LoveC_Event_MessageHandle* LoveC_Event_MessageRef;
 
 LOVE_EXPORT LoveC_Event_MessageRef love_Event_Message_construct(const char* name, const LoveC_VariantRef* args, LoveC_Int64 argsSize);
 LOVE_EXPORT const char* love_Event_Message_getName(LoveC_Event_MessageRef messageRef);
-LOVE_EXPORT void love_Event_Message_getArgs(LoveC_Event_MessageRef messageRef, LoveC_VariantRef* outArgs, const LoveC_Int64* outSize);
+LOVE_EXPORT void love_Event_Message_getArgs(LoveC_Event_MessageRef messageRef, LoveC_VariantRef** outArgs, LoveC_Int64* outSize);
 
 LOVE_EXPORT LoveC_Bool love_event_poll(LoveC_Event_MessageRef* outMessage);
 LOVE_EXPORT LoveC_Result love_event_pump(char** outError);
