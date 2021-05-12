@@ -12,20 +12,20 @@ using namespace love;
 using namespace love::image;
 
 
-LoveC_Graphics_PixelFormat love_image_ImageData_getFormat(LoveC_ImageDataRef ref) {
+LoveC_Graphics_PixelFormat love_image_ImageData_getFormat(LoveC_Image_ImageDataRef ref) {
   auto format = unwrap<ImageData>(ref)->getFormat();
   return static_cast<LoveC_Graphics_PixelFormat>();
 }
 
-int love_image_ImageData_getWidth(LoveC_ImageDataRef ref) {
+int love_image_ImageData_getWidth(LoveC_Image_ImageDataRef ref) {
   return unwrap<ImageData>(ref)->getWidth();
 }
 
-int love_image_ImageData_getHeight(LoveC_ImageDataRef ref) {
+int love_image_ImageData_getHeight(LoveC_Image_ImageDataRef ref) {
   return unwrap<ImageData>(ref)->getHeight();
 }
 
-LoveC_Bool love_image_ImageData_getPixel(LoveC_ImageDataRef ref, int x, int y, LoveC_Colorf* outColor, char** outError) {
+LoveC_Bool love_image_ImageData_getPixel(LoveC_Image_ImageDataRef ref, int x, int y, LoveC_Colorf* outColor, char** outError) {
   auto imageData = unwrap<ImageData>(ref);
   auto color_ = unwrap<Colorf>(outColor);
 
@@ -39,7 +39,7 @@ LoveC_Bool love_image_ImageData_getPixel(LoveC_ImageDataRef ref, int x, int y, L
   return true;
 }
 
-LoveC_Bool love_image_ImageData_setPixel(LoveC_ImageDataRef ref, int x, int y, const LoveC_Colorf* color, char** outError) {
+LoveC_Bool love_image_ImageData_setPixel(LoveC_Image_ImageDataRef ref, int x, int y, const LoveC_Colorf* color, char** outError) {
   auto imageData = unwrap<ImageData>(ref);
   auto color_ = unwrap<const Colorf>(outColor);
 
@@ -53,14 +53,14 @@ LoveC_Bool love_image_ImageData_setPixel(LoveC_ImageDataRef ref, int x, int y, c
   return true;
 }
 
-void love_image_ImageData_paste(LoveC_ImageDataRef ref, LoveC_ImageDataRef src, int dx, int dy, int sx, int sy, int sw, int sh) {
+void love_image_ImageData_paste(LoveC_Image_ImageDataRef ref, LoveC_Image_ImageDataRef src, int dx, int dy, int sx, int sy, int sw, int sh) {
   auto imageData = unwrap<ImageData>(ref);
   auto src_ = unwrap<ImageData>(src);
 
   ref->paste(imageData, dx, dy, sx, sy, sw, sh);
 }
 
-void love_image_ImageData_encode(LoveC_ImageDataRef ref, LoveC_ImageData_EncodedFormat format, const char* filename, LoveC_Bool hasfilename, LoveC_FileDataRef* outFileData) {
+void love_image_ImageData_encode(LoveC_Image_ImageDataRef ref, LoveC_ImageData_EncodedFormat format, const char* filename, LoveC_Bool hasfilename, LoveC_FileDataRef* outFileData) {
   auto imageData = unwrap<ImageData>(ref);
   auto format_ = static_cast<FormatHandler::EncodedFormat>(format);
 

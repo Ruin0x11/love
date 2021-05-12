@@ -11,9 +11,7 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-
-struct LoveC_ImageDataHandle;
-typedef struct LoveC_ImageDataHandle* LoveC_ImageDataRef;
+LOVE_C_DEFINE_OPAQUE_TYPE(Image_ImageData);
 
 typedef enum LoveC_ImageData_EncodedFormat
   {
@@ -22,14 +20,13 @@ typedef enum LoveC_ImageData_EncodedFormat
     ENCODED_MAX_ENUM
   } LoveC_ImageData_EncodedFormat;
 
-LOVE_EXPORT LoveC_Graphics_PixelFormat love_image_ImageData_getFormat(LoveC_ImageDataRef ref);
-LOVE_EXPORT int love_image_ImageData_getWidth(LoveC_ImageDataRef ref);
-LOVE_EXPORT int love_image_ImageData_getHeight(LoveC_ImageDataRef ref);
-LOVE_EXPORT LoveC_Bool love_image_ImageData_getPixel(LoveC_ImageDataRef ref, int x, int y, LoveC_Colorf* outColor, char** outError);
-LOVE_EXPORT LoveC_Bool love_image_ImageData_setPixel(LoveC_ImageDataRef ref, int x, int y, const LoveC_Colorf* color, char** outError);
-LOVE_EXPORT void love_image_ImageData_paste(LoveC_ImageDataRef ref, LoveC_ImageDataRef src, int dx, int dy, int sx, int sy, int sw, int sh);
-LOVE_EXPORT LoveC_Bool love_image_ImageData_encode(LoveC_ImageDataRef ref, LoveC_ImageData_EncodedFormat format, const char* filename, LoveC_Bool hasfilename, LoveC_FileDataRef* outFileData, char** outError);
-
+LOVE_EXPORT LoveC_Graphics_PixelFormat love_image_ImageData_getFormat(LoveC_Image_ImageDataRef ref);
+LOVE_EXPORT int love_image_ImageData_getWidth(LoveC_Image_ImageDataRef ref);
+LOVE_EXPORT int love_image_ImageData_getHeight(LoveC_Image_ImageDataRef ref);
+LOVE_EXPORT LoveC_Bool love_image_ImageData_getPixel(LoveC_Image_ImageDataRef ref, int x, int y, LoveC_Colorf* outColor, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_ImageData_setPixel(LoveC_Image_ImageDataRef ref, int x, int y, const LoveC_Colorf* color, char** outError);
+LOVE_EXPORT void love_image_ImageData_paste(LoveC_Image_ImageDataRef ref, LoveC_Image_ImageDataRef src, int dx, int dy, int sx, int sy, int sw, int sh);
+LOVE_EXPORT LoveC_Bool love_image_ImageData_encode(LoveC_Image_ImageDataRef ref, LoveC_ImageData_EncodedFormat format, const char* filename, LoveC_Bool hasfilename, LoveC_FileDataRef* outFileData, char** outError);
 
 LOVE_C_EXTERN_C_END
 

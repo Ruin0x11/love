@@ -15,7 +15,7 @@ using namespace love::image;
 #define instance() (Module::getInstance<Image>(Module::M_IMAGE))
 
 
-LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError) {
+LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_Image_ImageDataRef* outImageData, char** outError) {
   auto format_ = static_cast<PixelFormat>(format);
 
   ImageData* t = nullptr;
@@ -27,12 +27,12 @@ LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat form
     return false;
   }
 
-  *outImageData = wrap<LoveC_ImageDataRef>(t);
+  *outImageData = wrap<LoveC_Image_ImageDataRef>(t);
 
   return true;
 }
 
-LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError) {
+LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_Image_ImageDataRef* outImageData, char** outError) {
   auto data_ = unwrap<Data>(data);
 
   ImageData* t = nullptr;
@@ -44,7 +44,7 @@ LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_ImageDataRef*
     return false;
   }
 
-  *outImageData = wrap<LoveC_ImageDataRef>(t);
+  *outImageData = wrap<LoveC_Image_ImageDataRef>(t);
 
   return true;
 }
@@ -72,7 +72,7 @@ LoveC_Bool love_image_isCompressed(LoveC_DataRef data) {
   return instance()->isCompressed(data_);
 }
 
-LoveC_Bool love_image_newCubeFaces(LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError) {
+LoveC_Bool love_image_newCubeFaces(LoveC_Image_ImageDataRef imageData, LoveC_Image_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError) {
   auto imageData_ = unwrap<ImageData>(imageData);
 
   std::vector<StrongRef<ImageData>> faces;
@@ -86,7 +86,7 @@ LoveC_Bool love_image_newCubeFaces(LoveC_ImageDataRef imageData, LoveC_ImageData
 
   int i;
   for (i = 0; faces[i]; i++) {
-    *outFaces[i] = wrap<LoveC_ImageDataRef>(faces[i].get());
+    *outFaces[i] = wrap<LoveC_Image_ImageDataRef>(faces[i].get());
   }
 
   return true;

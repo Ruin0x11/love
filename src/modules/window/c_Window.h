@@ -84,8 +84,8 @@ LOVE_EXPORT void love_window_getDesktopDimensions(int indexOpt, int* outWidth, i
 LOVE_EXPORT void love_window_setPosition(int x, int y, int indexOpt);
 LOVE_EXPORT void love_window_getPosition(int* outX, int* outY, int* outIndex);
 LOVE_EXPORT void love_window_getSafeArea(int* outX, int* outY, int* outW, int* outH);
-// TODO LOVE_EXPORT LoveC_Bool love_window_setIcon(LoveC_ImageDataRef imageRef, char** outError);
-// TODO LOVE_EXPORT void love_window_getIcon(LoveC_ImageDataRef *outImageRef);
+// TODO LOVE_EXPORT LoveC_Bool love_window_setIcon(LoveC_Image_ImageDataRef imageRef, char** outError);
+// TODO LOVE_EXPORT void love_window_getIcon(LoveC_Image_ImageDataRef *outImageRef);
 LOVE_EXPORT void love_window_setVSync(int vsync);
 LOVE_EXPORT int love_window_getVSync();
 LOVE_EXPORT void love_window_setDisplaySleepEnabled(LoveC_Bool enable);

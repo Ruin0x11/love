@@ -52,7 +52,7 @@ LoveC_Bool love_font_newTrueTypeRasterizer(LoveC_FileDataRef fileData, int size,
   return true;
 }
 
-LoveC_Bool love_font_newBMFontRasterizer(LoveC_FileDataRef fileData, LoveC_ImageDataRef** images, float dpiscale, LoveC_Font_RasterizerRef* outRasterizer, char** outError) {
+LoveC_Bool love_font_newBMFontRasterizer(LoveC_FileDataRef fileData, LoveC_Image_ImageDataRef** images, float dpiscale, LoveC_Font_RasterizerRef* outRasterizer, char** outError) {
   auto fileData_ = unwrap<filesystem::FileData>(fileData);
   std::vector<image::ImageData *> images_;
 
@@ -74,7 +74,7 @@ LoveC_Bool love_font_newBMFontRasterizer(LoveC_FileDataRef fileData, LoveC_Image
   return true;
 }
 
-LoveC_Bool love_font_newImageRasterizer(LoveC_ImageDataRef imageData, const char* glyphs, int extraspacing, float dpiscale, LoveC_Font_RasterizerRef* outRasterizer, char** outError) {
+LoveC_Bool love_font_newImageRasterizer(LoveC_Image_ImageDataRef imageData, const char* glyphs, int extraspacing, float dpiscale, LoveC_Font_RasterizerRef* outRasterizer, char** outError) {
   auto imageData_ = unwrap<image::ImageData>(imageData);
 
   Rasterizer* t = nullptr;

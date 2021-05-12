@@ -265,7 +265,7 @@ LOVE_EXPORT void love_graphics_getStencilTest(LoveC_Graphics_CompareMode* outMod
 /* LOVE_EXPORT void love_graphics_newCubeImage(); */
 /* LOVE_EXPORT void love_graphics_newArrayImage(); */
 /* LOVE_EXPORT void love_graphics_newVolumeImage(); */
-LOVE_EXPORT LoveC_Bool love_graphics_newImage(LoveC_Texture_TextureType type, LoveC_Image_Settings* settingsOpt, LoveC_ImageRef* outImage, char** outError);
+LOVE_EXPORT LoveC_Result love_graphics_newImage(LoveC_Graphics_Image_SlicesRef slices, LoveC_Graphics_Image_Settings* settingsOpt, LoveC_Graphics_ImageRef* outImage, char** outError);
 LOVE_EXPORT LoveC_QuadRef love_graphics_newQuad(const LoveC_Quad_Viewport* v, double sw, double sh);
 LOVE_EXPORT LoveC_Bool love_graphics_newFont(LoveC_Font_RasterizerRef rasterizer, LoveC_Texture_Filter* filter, LoveC_FontRef* outFont, char** outError);
 LOVE_EXPORT LoveC_Bool love_graphics_newSpriteBatch(LoveC_TextureRef texture, int size, LoveC_Graphics_Vertex_Usage usage, LoveC_SpriteBatchRef* outSpriteBatch, char** outError);

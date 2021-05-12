@@ -17,10 +17,10 @@ typedef struct LoveC_CanvasHandle* LoveC_CanvasRef;
 
 typedef enum LoveC_Canvas_MipmapMode
   {
-    MIPMAPS_NONE,
-    MIPMAPS_MANUAL,
-    MIPMAPS_AUTO,
-    MIPMAPS_MAX_ENUM
+    CANVAS_MIPMAPS_NONE,
+    CANVAS_MIPMAPS_MANUAL,
+    CANVAS_MIPMAPS_AUTO,
+    CANVAS_MIPMAPS_MAX_ENUM
   } LoveC_Canvas_MipmapMode;
 
 typedef struct LoveC_Canvas_Settings {
@@ -37,7 +37,7 @@ typedef struct LoveC_Canvas_Settings {
 
 LOVE_EXPORT int LoveC_Canvas_getMSAA(LoveC_CanvasRef ref);
 /* { "renderTo", w_Canvas_renderTo }, */
-LOVE_EXPORT LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, int slice, int mipmap, LoveC_Rect* rect, LoveC_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, int slice, int mipmap, LoveC_Rect* rect, LoveC_Image_ImageDataRef* outImageData, char** outError);
 LOVE_EXPORT LoveC_Bool LoveC_Canvas_generateMipmaps(LoveC_CanvasRef ref, char** outError);
 LOVE_EXPORT LoveC_Canvas_MipmapMode LoveC_Canvas_getMipmapMode(LoveC_CanvasRef ref);
 

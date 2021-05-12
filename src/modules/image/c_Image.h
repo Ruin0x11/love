@@ -11,11 +11,11 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
-LOVE_EXPORT LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_ImageDataRef* outImageData, char** outError);
-LOVE_EXPORT LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newImageData(int w, int h, LoveC_Graphics_PixelFormat format, LoveC_Image_ImageDataRef* outImageData, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newImageData__Data(LoveC_DataRef data, LoveC_Image_ImageDataRef* outImageData, char** outError);
 LOVE_EXPORT LoveC_Bool love_image_newCompressedData(LoveC_DataRef data, LoveC_CompressedDataRef* outCompressedData, char** outError);
 LOVE_EXPORT LoveC_Bool love_image_isCompressed(LoveC_DataRef data);
-LOVE_EXPORT LoveC_Bool love_image_newCubeFaces(LoveC_ImageDataRef imageData, LoveC_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError);
+LOVE_EXPORT LoveC_Bool love_image_newCubeFaces(LoveC_Image_ImageDataRef imageData, LoveC_Image_ImageDataRef** outFaces, LoveC_Int64* outSize, char** outError);
 
 LOVE_EXPORT LoveC_Bool love_image_registerModule(char** outError);
 

@@ -208,11 +208,11 @@ void love_window_getSafeArea(int* outX, int* outY, int* outW, int* outH) {
   *outH = area.h;
 }
 
-// TODO LoveC_Bool love_window_setIcon(LoveC_ImageDataRef imageRef, char** outError) {
+// TODO LoveC_Bool love_window_setIcon(LoveC_Image_ImageDataRef imageRef, char** outError) {
 
 // }
 
-// TODO void love_window_getIcon(LoveC_ImageDataRef *outImageRef) {
+// TODO void love_window_getIcon(LoveC_Image_ImageDataRef *outImageRef) {
 
 // }
 

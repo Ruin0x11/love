@@ -16,7 +16,7 @@ int LoveC_Canvas_getMSAA(LoveC_CanvasRef ref) {
   return unwrap<Canvas>(ref)->getMSAA();
 }
 
-LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, int slice, int mipmap, LoveC_Rect* rect, LoveC_ImageDataRef* outImageData, char** outError) {
+LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, int slice, int mipmap, LoveC_Rect* rect, LoveC_Image_ImageDataRef* outImageData, char** outError) {
   auto canvas = unwrap<Canvas>(ref);
   auto image_ = Module::getInstance<image::Image>(Module::M_IMAGE);
   auto rect_ = unwrap<Rect>(rect);
@@ -30,7 +30,7 @@ LoveC_Bool LoveC_Canvas_newImageData(LoveC_CanvasRef ref, int slice, int mipmap,
     return false;
   }
 
-  *outImageData = wrap<LoveC_ImageDataRef>(img);
+  *outImageData = wrap<LoveC_Image_ImageDataRef>(img);
 
   return true;
 }

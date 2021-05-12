@@ -251,8 +251,8 @@ void love_graphics_getStencilTest(LoveC_Graphics_CompareMode* outMode, int* outC
   *outComparevalue = comparevalue;
 }
 
-LoveC_Bool love_graphics_newImage(LoveC_Texture_TextureType type, LoveC_Image_Settings* settingsOpt, LoveC_ImageRef* outImage, char** outError) {
-  Image::Slices slices(static_cast<TextureType>(type));
+LoveC_Result love_graphics_newImage(LoveC_Graphics_Image_SlicesRef slices, LoveC_Graphics_Image_Settings* settingsOpt, LoveC_Graphics_ImageRef* outImage, char** outError) {
+  auto slices_ = unwrap<Image::Slices>(slices);
   Image::Settings settings_;
 
   if (settingsOpt != nullptr) {
@@ -264,14 +264,13 @@ LoveC_Bool love_graphics_newImage(LoveC_Texture_TextureType type, LoveC_Image_Se
   Image* t = nullptr;
 
   try {
-    t = instance()->newImage(slices, settings_);
+    t = instance()->newImage(*slices_, settings_);
   } catch (const std::exception& e) {
-    slices.clear();
     *outError = strdup(e.what());
     return false;
   }
 
-  *outImage = wrap<LoveC_ImageRef>(t);
+  *outImage = wrap<LoveC_Graphics_ImageRef>(t);
 
   return true;
 }

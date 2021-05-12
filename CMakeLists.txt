@@ -586,7 +586,7 @@ set(LOVE_SRC_MODULE_GRAPHICS_ROOT
 	src/modules/graphics/c_Font.h
 	src/modules/graphics/c_Graphics.cpp
 	src/modules/graphics/c_Graphics.h
-	# src/modules/graphics/c_Image.cpp
+	src/modules/graphics/c_Image.cpp
 	src/modules/graphics/c_Image.h
 	# src/modules/graphics/c_Mesh.cpp
 	src/modules/graphics/c_Mesh.h
@@ -680,6 +680,8 @@ set(LOVE_SRC_MODULE_IMAGE_ROOT
 	src/modules/image/wrap_CompressedImageData.h
 	src/modules/image/c_Image.cpp
 	src/modules/image/c_Image.h
+	src/modules/image/c_ImageData.h
+	src/modules/image/c_ImageDataBase.h
 	src/modules/image/wrap_ImageData.cpp
 	src/modules/image/wrap_ImageData.h
 	src/modules/image/wrap_CompressedImageData.cpp

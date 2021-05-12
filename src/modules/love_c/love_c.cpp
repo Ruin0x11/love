@@ -4,6 +4,7 @@
 #include "modules/filesystem/c_Filesystem.h"
 #include "modules/window/c_Window.h"
 #include "modules/graphics/c_Graphics.h"
+#include "modules/image/c_Image.h"
 #include "modules/font/c_Font.h"
 #include "modules/event/c_Event.h"
 #include "modules/data/c_DataModule.h"
@@ -22,6 +23,10 @@ LoveC_Bool love_c_init(char** error) {
   }
 
   if (!love_graphics_registerModule(error)) {
+    return false;
+  }
+
+  if (!love_image_registerModule(error)) {
     return false;
   }
 
