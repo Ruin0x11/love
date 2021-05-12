@@ -9,6 +9,14 @@
 
 LOVE_C_EXTERN_C_BEGIN
 
+LOVE_EXPORT float love_physics_Body_getX(LoveC_Physics_BodyRef ref);
+LOVE_EXPORT float love_physics_Body_getY(LoveC_Physics_BodyRef ref);
+LOVE_EXPORT float love_physics_Body_getAngle(LoveC_Physics_BodyRef ref);
+LOVE_EXPORT void love_physics_Body_setAngularDamping(LoveC_Physics_BodyRef ref, float damping);
+LOVE_EXPORT void love_physics_Body_setLinearDamping(LoveC_Physics_BodyRef ref, float damping);
+LOVE_EXPORT void love_physics_Body_applyForceToCenter(LoveC_Physics_BodyRef ref, float fx, float fy, LoveC_Bool wake);
+LOVE_EXPORT void love_physics_Body_applyForce(LoveC_Physics_BodyRef ref, float fx, float fy, float rx, float ry, LoveC_Bool wake);
+
 LOVE_C_EXTERN_C_END
 
 #endif // LOVE_PHYSICS_C_BODY_H

@@ -9,6 +9,9 @@
 #include "Fixture.h"
 
 using namespace love;
-using namespace love::physics;
+using namespace love::physics::box2d;
 
 
+void love_physics_Fixture_setRestitution(LoveC_Physics_FixtureRef ref, float restitution) {
+  unwrap<Fixture>(ref)->setRestitution(restitution);
+}

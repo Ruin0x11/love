@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "shaders.h"
 #include "nogame.h"
@@ -22,6 +23,9 @@
 #include "../modules/data/c_DataModule.h"
 #include "../modules/timer/c_Timer.h"
 #include "../modules/physics/box2d/c_Physics.h"
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+#define MAX(a,b) (((a)>(b))?(a):(b))
 
 #define DEBUG LOVE_C_TRUE
 
@@ -289,10 +293,40 @@ void nogame_State_save(State* state, LoveC_Physics_BodyRef body, float t) {
   state->r1 = love_physics_Body_getAngle(body);
 }
 
+void nogame_State_get(const State* state, float t, float* x, float* y, float* r) {
+  t = MIN(t, state->t1);
+  t = MAX(t, state->t0);
+
+  float p = (t - state->t0) / (state->t1 - state->t0);
+
+  *x = state->x0 + p * (state->x1 - state->x0);
+  *y = state->y0 + p * (state->y1 - state->y0);
+  *r = state->r0 + p * (state->r1 - state->r0);
+}
+
 typedef struct Blink {
   float closed_t;
   float next_blink_t;
 } Blink;
+
+void nogame_Blink_init(Blink* blink) {
+  blink->closed_t = 0.0f;
+  blink->next_blink_t = 0.0f;
+}
+
+void nogame_Blink_update(Blink* blink, float dt) {
+  blink->next_blink_t = MAX(0.0f, blink->next_blink_t - dt);
+  blink->closed_t = MAX(0.0f, blink->closed_t - dt);
+
+  if (blink->next_blink_t == 0.0f) {
+    blink->next_blink_t = 5.0f + rand() % 3;
+    blink->closed_t = 0.0f;
+  }
+}
+
+LoveC_Bool nogame_Blink_is_closed(const Blink* blink) {
+  return blink->closed_t > 0.0f;
+}
 
 typedef struct Duckloon {
   LoveC_Physics_BodyRef body;
@@ -303,6 +337,93 @@ typedef struct Duckloon {
   LoveC_Physics_JointRef pin;
   State state;
 } Duckloon;
+
+static Duckloon duckloon;
+
+int nogame_Duckloon_init(Duckloon* duckloon, LoveC_Physics_WorldRef world, float x, float y, char** outError) {
+  if (!love_physics_newBody(world, x, y, BODY_DYNAMIC, &duckloon->body, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  love_physics_Body_setLinearDamping(duckloon->body, 0.8f);
+  love_physics_Body_setAngularDamping(duckloon->body, 0.8f);
+
+  float xs[3] = { -55.0f, 0.0f, 55.0f };
+  float ys[3] = { -60.0f, 90.0f, -60.0f };
+
+  LoveC_Physics_PolygonShapeRef shape;
+
+  if (!love_physics_newPolygonShape(xs, ys, 3, &shape, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  duckloon->shape = (LoveC_Physics_ShapeRef)shape;
+
+  if (!love_physics_newFixture(duckloon->body, duckloon->shape, 1.0, &duckloon->fixture, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  love_physics_Fixture_setRestitution(duckloon->fixture, 0.5);
+
+  duckloon->img = img_duckloon_normal;
+
+  nogame_Blink_init(&duckloon->blink);
+
+  LoveC_Physics_MouseJointRef joint;
+
+  if (!love_physics_newMouseJoint(duckloon->body, x, y - 80, &joint, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  duckloon->pin = (LoveC_Physics_JointRef)joint;
+
+  nogame_State_init(&duckloon->state, duckloon->body);
+
+  return LOVE_C_TRUE;
+}
+
+void nogame_Duckloon_step(Duckloon* duckloon) {
+  nogame_State_save(&duckloon->state, duckloon->body, g_step);
+
+  if (((int)g_step % 5) == 0) {
+    love_physics_Body_applyForceToCenter(duckloon->body, rand() % 20 + 30, 0, LOVE_C_TRUE);
+  }
+}
+
+void nogame_Duckloon_update(Duckloon* duckloon, float dt) {
+  nogame_Blink_update(&duckloon->blink, dt);
+}
+
+int nogame_Duckloon_draw(const Duckloon* duckloon, char** outError) {
+  float x, y, r;
+  nogame_State_get(&duckloon->state, g_t, &x, &y, &r);
+
+  LoveC_Graphics_ImageRef img = img_duckloon_normal;
+  if (nogame_Blink_is_closed(&duckloon->blink)) {
+    img = img_duckloon_blink;
+  }
+
+  static LoveC_Colorf color = {
+    .r = 1.0f,
+    .g = 1.0f,
+    .b = 1.0f,
+    .a = 1.0f,
+  };
+  love_graphics_setColor(&color);
+
+  static LoveC_Matrix4 matrix;
+  love_Matrix4_setTransformation(&matrix, x, y, r, 1.0f, 1.0f, love_Graphics_Image_getWidth(img) / 2, love_Graphics_Image_getHeight(img) / 2, 0.0f, 0.0f);
+
+  if (!love_graphics_draw((LoveC_DrawableRef)img, &matrix, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  if (DEBUG) {
+    // TODO
+  }
+
+  return LOVE_C_TRUE;
+}
 
 typedef struct CloudTrack {
   int x;
@@ -346,11 +467,16 @@ int nogame_CloudTrack_draw(const CloudTrack* cloudTrack, char** outError) {
     float x = cloudTrack->x + i * (love_Graphics_Image_getWidth(cloudTrack->img) + cloudTrack->h_spacing) + offset - cloudTrack->w;
     float y = cloudTrack->y;
     unsigned int img_no = abs_offset / cloudTrack->w;
-    LoveC_Graphics_ImageRef img = cloud_images[(cloudTrack->initial_img + i - img_no) % 4];
+    unsigned int idx = abs(cloudTrack->initial_img + i - img_no) % 4;
 
-    love_Matrix4_setTranslation(&pos, x, y);
-    if (!love_graphics_draw((LoveC_DrawableRef)img, &pos, outError)) {
-      return LOVE_C_FALSE;
+    if (idx >= 0 && idx < 3) {
+      LoveC_Graphics_ImageRef img = cloud_images[idx];
+      assert(img);
+
+      love_Matrix4_setTranslation(&pos, x, y);
+      if (!love_graphics_draw((LoveC_DrawableRef)img, &pos, outError)) {
+        return LOVE_C_FALSE;
+      }
     }
   }
 
@@ -392,13 +518,21 @@ int nogame_Clouds_init(Clouds* clouds) {
   return LOVE_C_TRUE;
 }
 
-int nogame_update(float dt, char** error) {
+int nogame_update(float dt, char** outError) {
   g_t += dt;
 
   while (g_t > g_step) {
+    if (!love_physics_World_update(world, STEP, 8, 3, outError)) {
+      return LOVE_C_FALSE;
+    }
     g_step += STEP;
+
+    nogame_Duckloon_step(&duckloon);
+
     g_step_count += 1;
   }
+
+  nogame_Duckloon_update(&duckloon, dt);
 
   return LOVE_C_TRUE;
 }
@@ -406,6 +540,11 @@ int nogame_update(float dt, char** error) {
 int nogame_draw(char** outError) {
   if (!nogame_Clouds_draw(&clouds, outError)) {
     printf("Error nogame_Clouds_draw: %s\n", *outError);
+    return LOVE_C_FALSE;
+  }
+
+  if (!nogame_Duckloon_draw(&duckloon, outError)) {
+    printf("Error nogame_Duckloon_draw: %s\n", *outError);
     return LOVE_C_FALSE;
   }
 
@@ -469,7 +608,11 @@ int create_world(char** outError) {
   int wx = love_graphics_getWidth();
   int wy = love_graphics_getHeight();
 
-  if (!love_physics_newWorld(0, 9.81 * 64, LOVE_C_FALSE, &world, outError)) {
+  if (!love_physics_newWorld(0, 9.81 * 64, LOVE_C_TRUE, &world, outError)) {
+    return LOVE_C_FALSE;
+  }
+
+  if (!nogame_Duckloon_init(&duckloon, world, wx / 2, wy / 2 - 100, outError)) {
     return LOVE_C_FALSE;
   }
 
@@ -488,9 +631,9 @@ int load_nogame_images(char** outError) {
     .dpiScale = dpiscale > 1.0f ? 2.0f : 1.0f
   };
 
-#define LOAD_IMAGE(to, from) \
-  if (!load_image(from, &settings, &to, outError)) { \
-    return LOVE_C_FALSE; \
+#define LOAD_IMAGE(to, from)                            \
+  if (!load_image(from, &settings, &to, outError)) {    \
+    return LOVE_C_FALSE;                                \
   }
 
   if (dpiscale > 1.0f) {
@@ -522,7 +665,7 @@ int load_nogame_images(char** outError) {
     LOAD_IMAGE(img_square, CHAIN_SQUARE_PNG);
 
     LOAD_IMAGE(img_cloud_1, BG_CLOUD_1_PNG)
-    LOAD_IMAGE(img_cloud_2, BG_CLOUD_2_PNG);
+      LOAD_IMAGE(img_cloud_2, BG_CLOUD_2_PNG);
     LOAD_IMAGE(img_cloud_3, BG_CLOUD_3_PNG);
     LOAD_IMAGE(img_cloud_4, BG_CLOUD_4_PNG);
   }
