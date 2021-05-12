@@ -253,6 +253,57 @@ int load_image(const char* bytes, LoveC_Graphics_Image_Settings* settings, LoveC
   return LOVE_C_TRUE;
 }
 
+typedef struct State {
+  float t0;
+  float x0;
+  float y0;
+  float r0;
+
+  float t1;
+  float x1;
+  float y1;
+  float r1;
+} State;
+
+void nogame_State_init(State* state, LoveC_Physics_BodyRef body) {
+  state->t0 = 0.0f;
+  state->x0 = love_physics_Body_getX(body);
+  state->y0 = love_physics_Body_getY(body);
+  state->r0 = love_physics_Body_getAngle(body);
+
+  state->t1 = state->t0;
+  state->x1 = state->x0;
+  state->y1 = state->y0;
+  state->r1 = state->r0;
+}
+
+void nogame_State_save(State* state, LoveC_Physics_BodyRef body, float t) {
+  state->t0 = state->t1;
+  state->x0 = state->x1;
+  state->y0 = state->y1;
+  state->r0 = state->r1;
+
+  state->t1 = t;
+  state->x1 = love_physics_Body_getX(body);
+  state->y1 = love_physics_Body_getY(body);
+  state->r1 = love_physics_Body_getAngle(body);
+}
+
+typedef struct Blink {
+  float closed_t;
+  float next_blink_t;
+} Blink;
+
+typedef struct Duckloon {
+  LoveC_Physics_BodyRef body;
+  LoveC_Physics_ShapeRef shape;
+  LoveC_Physics_FixtureRef fixture;
+  LoveC_Graphics_ImageRef img;
+  Blink blink;
+  LoveC_Physics_JointRef pin;
+  State state;
+} Duckloon;
+
 typedef struct CloudTrack {
   int x;
   int y;
@@ -429,22 +480,7 @@ int create_world(char** outError) {
   return LOVE_C_TRUE;
 }
 
-int nogame() {
-  char* error = NULL;
-
-  LoveC_Colorf bg = {
-    .r = 43.0f / 255.0f,
-    .g = 165.0f / 255.0f,
-    .b = 223.0f / 255.0f,
-    .a = 1.0f
-  };
-  love_graphics_setBackgroundColor(&bg);
-  if (!love_physics_setMeter(64, &error)) {
-    printf("Error love_graphics_setMeter: %s\n", error);
-    free(error);
-    return LOVE_C_FALSE;
-  }
-
+int load_nogame_images(char** outError) {
   int dpiscale = love_window_getDPIScale();
   LoveC_Graphics_Image_Settings settings = {
     .mipmaps = LOVE_C_FALSE,
@@ -453,9 +489,7 @@ int nogame() {
   };
 
 #define LOAD_IMAGE(to, from) \
-  if (!load_image(from, &settings, &to, &error)) { \
-    printf("Error love_graphics_newImage: %s\n", error); \
-    free(error); \
+  if (!load_image(from, &settings, &to, outError)) { \
     return LOVE_C_FALSE; \
   }
 
@@ -492,11 +526,37 @@ int nogame() {
     LOAD_IMAGE(img_cloud_3, BG_CLOUD_3_PNG);
     LOAD_IMAGE(img_cloud_4, BG_CLOUD_4_PNG);
   }
+#undef LOAD_IMAGE
 
   cloud_images[0] = img_cloud_1;
   cloud_images[1] = img_cloud_2;
   cloud_images[2] = img_cloud_3;
   cloud_images[3] = img_cloud_4;
+
+  return LOVE_C_TRUE;
+}
+
+int nogame() {
+  char* error = NULL;
+
+  LoveC_Colorf bg = {
+    .r = 43.0f / 255.0f,
+    .g = 165.0f / 255.0f,
+    .b = 223.0f / 255.0f,
+    .a = 1.0f
+  };
+  love_graphics_setBackgroundColor(&bg);
+  if (!love_physics_setMeter(64, &error)) {
+    printf("Error love_graphics_setMeter: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
+
+  if (!load_nogame_images(&error)) {
+    printf("Error load_nogame_images: %s\n", error);
+    free(error);
+    return LOVE_C_FALSE;
+  }
 
   if (!create_world(&error)) {
     return LOVE_C_FALSE;
